@@ -1,0 +1,141 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* --- Spacing scale ---------------------------------------------------
+     Five steps, and nothing in between. Every pad, gap and inset in the app
+     names one of these instead of a raw number, so a card's padding and the
+     gutter beside it cannot drift apart as screens get added.
+
+     They are ordinary Tailwind spacing keys, so they work anywhere a number
+     would: `p-card`, `gap-inline`, `space-y-block`, `mt-section`. */
+  --spacing-tight: 0.5rem; /* 8px  - icon to its label, padding inside a chip */
+  --spacing-inline: 0.75rem; /* 12px - between items on one row */
+  --spacing-card: 1rem; /* 16px - card padding, and the page gutter it aligns to */
+  --spacing-block: 1.25rem; /* 20px - between blocks within a section */
+  --spacing-section: 2rem; /* 32px - between sections of a screen */
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* Each stack has to name the loaded family (a `next/font` CSS variable set in
+     layout.tsx) plus real fallbacks - a bare `var(--font-sans)` here resolves
+     to nothing and drops every `font-sans` to the browser's default serif. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+  --font-heading: var(--font-plus-jakarta-sans), var(--font-inter),
+    ui-sans-serif, system-ui, sans-serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  /* The admin is chroma-0 neutral throughout, which is right for a tool an
+     operator stares at all day. This is a consumer surface, so primary carries
+     an actual brand hue - it is the tab bar's active tint, the Get Started
+     button and every submit action. */
+  --primary: oklch(0.545 0.215 287);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  /* Status badges need more than destructive/muted: a submission can be
+     approved (paying), pending (waiting) or invalidated (recoverable). */
+  --success: oklch(0.55 0.14 155);
+  --warning: oklch(0.62 0.15 75);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.545 0.215 287);
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  /* Lifted and de-saturated for the dark surface rather than reused: the light
+     violet at 0.545 sits too close to the background to read as a control. */
+  --primary: oklch(0.68 0.18 287);
+  --primary-foreground: oklch(0.16 0.03 287);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.7 0.15 155);
+  --warning: oklch(0.75 0.15 75);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.68 0.18 287);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer base {
+  /* The bottom tab bar is fixed, so every scrollable surface has to reserve
+     room for it or the last card sits under the bar. Exposed as a variable
+     because the bar changes shape at `sm` (full-width bar -> floating pill)
+     and two files need to agree on the number. */
+  :root {
+    --app-nav-clearance: 5.5rem;
+  }
+
+  /* iOS momentum scrolling past the end of the page reveals the body
+     background behind a translucent bar; matching it avoids a white flash on
+     the dark theme. */
+  html {
+    background-color: var(--background);
+  }
+}
