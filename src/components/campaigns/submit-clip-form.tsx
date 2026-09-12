@@ -128,7 +128,10 @@ export function SubmitClipForm({
           {campaign.allowed_platforms.length > 0
             ? campaign.allowed_platforms.map(platformLabel).join(", ")
             : "Instagram, X, TikTok or YouTube"}
-          . The post must be public and posted by your connected account.
+          . The post must be public and posted by your connected account
+          {campaign.hashtags.length > 0 &&
+            `, with ${campaign.hashtags.map((tag) => `#${tag}`).join(" ")} in the caption`}
+          .
         </p>
       </div>
 
