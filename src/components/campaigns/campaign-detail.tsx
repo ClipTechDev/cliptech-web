@@ -15,15 +15,15 @@ import { buttonVariants } from "@/components/ui/button";
 import { StatCard } from "@/components/shared/stat-card";
 import { CampaignStatusBadge } from "@/components/campaigns/campaign-status-badge";
 import { CampaignHashtags } from "@/components/campaigns/campaign-hashtags";
-import { CampaignResultsSummary } from "@/components/campaigns/campaign-results-summary";
+import { CampaignTracking } from "@/components/campaigns/campaign-tracking";
 import { SubmitClipForm } from "@/components/campaigns/submit-clip-form";
 
 /**
  * One campaign, in full.
  *
  * A Server Component: it is handed the campaign the route already fetched and
- * renders it, so everything below except the copy button and the submit form's
- * live URL check is plain HTML in the first response.
+ * renders it, so everything below except the results section, the copy button
+ * and the submit form's live URL check is plain HTML in the first response.
  *
  * The order answers a creator's questions as they ask them - what it pays,
  * when it ends, what the rules are, then the form to act on all of it.
@@ -128,7 +128,7 @@ export function CampaignDetail({
         </dl>
       </div>
 
-      {result && <CampaignResultsSummary result={result} />}
+      <CampaignTracking campaignId={campaign.id} initialResult={result} />
 
       {campaign.hashtags.length > 0 && (
         <section className="space-y-inline">

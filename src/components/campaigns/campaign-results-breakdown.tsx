@@ -1,36 +1,18 @@
 import { formatCompactNumber, formatCurrency, formatDate } from "@/lib/format";
 import type { CampaignResult } from "@/schemas/campaign-result";
-import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/shared/stat-card";
 
-/**
- * How this campaign actually settled for this creator (reqs #17 and #21).
- *
- * The endpoint answers for any live campaign too, so the heading and the
- * closing line both change on `settled`: while a campaign is running these are
- * running totals, and presenting them as final is how a creator concludes they
- * have been underpaid on a campaign that has not finished counting.
- *
- * Server-rendered like the rest of this screen - it is handed the result the
- * route already fetched.
- */
-export function CampaignResultsSummary({ result }: { result: CampaignResult }) {
+export function CampaignResultsBreakdown({ result }: { result: CampaignResult }) {
   return (
-    <section className="space-y-inline">
-      <div className="gap-inline flex items-center justify-between">
-        <h2 className="font-heading font-semibold">Your results</h2>
-        <Badge variant={result.settled ? "success" : "secondary"}>
-          {result.settled ? "Final" : "Still counting"}
-        </Badge>
-      </div>
-
+    <div className="space-y-inline">
       <div className="gap-inline grid grid-cols-2">
         <StatCard
-          label="Your payable views"
+          label="Credited views"
           value={formatCompactNumber(result.my_payable_views)}
+          hint="cleared a payout threshold"
         />
         <StatCard
-          label="You earned"
+          label="Credited to you"
           value={formatCurrency(result.my_earnings)}
           emphasis
         />
@@ -39,7 +21,7 @@ export function CampaignResultsSummary({ result }: { result: CampaignResult }) {
       {result.my_entries.length > 0 && <EntryBreakdown entries={result.my_entries} />}
 
       <ClosingLine result={result} />
-    </section>
+    </div>
   );
 }
 
