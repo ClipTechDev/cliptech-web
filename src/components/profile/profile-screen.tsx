@@ -10,6 +10,7 @@ import { QueryState } from "@/components/shared/query-state";
 import { PushNotificationsCard } from "@/components/notifications/push-notifications-card";
 import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { BalanceSummary } from "@/components/profile/balance-summary";
+import { PaymentMethods } from "@/components/profile/payment-methods";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { SignOutButton } from "@/components/profile/sign-out-button";
 import { SocialAccounts } from "@/components/profile/social-accounts";
@@ -43,6 +44,13 @@ export function ProfileScreen() {
             description="You can only submit clips from an account you've connected."
           >
             <SocialAccounts />
+          </Section>
+
+          <Section
+            title="Payment methods"
+            description="Where we send your earnings. You'll need one saved before you can withdraw."
+          >
+            <PaymentMethods />
           </Section>
 
           <Section title="Notifications">
