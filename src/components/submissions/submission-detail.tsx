@@ -6,27 +6,20 @@ import {
   formatCurrency,
   formatDateTime,
   formatRelative,
-  humanise,
   platformLabel,
 } from "@/lib/format";
 import {
-  canRevalidate,
   submissionDisplayStatus,
   type Submission,
   type SubmissionLog,
 } from "@/schemas/submission";
 import { buttonVariants } from "@/components/ui/button";
 import { StatCard } from "@/components/shared/stat-card";
-import { RevalidateButton } from "@/components/submissions/revalidate-button";
+import { RecheckButton } from "@/components/submissions/recheck-button";
+import { SubmissionIssues } from "@/components/submissions/submission-issues";
 import { SubmissionStatusBadge } from "@/components/submissions/submission-status-badge";
 import { TrackingHistory } from "@/components/submissions/tracking-history";
 
-/**
- * One clip, in full (req #22).
- *
- * The listing card answers "where did this land". This screen answers "how did
- * it get there", which is the tracking history.
- */
 export function SubmissionDetail({
   submission,
   logs,
@@ -118,9 +111,6 @@ export function SubmissionDetail({
           </DetailRow>
         </dl>
 
-        {/* The gap between raw and payable is the question this screen exists
-            to answer, so it is stated rather than left to be inferred from
-            two numbers in a list. */}
         {submission.starting_views > 0 && (
           <p className="text-sm text-muted-foreground">
             This post already had {formatCompactNumber(submission.starting_views)} views
@@ -130,7 +120,9 @@ export function SubmissionDetail({
         )}
       </div>
 
-      {(submission.rejection_reason || submission.invalid_reason) && (
+      {(submission.rejection_reason ||
+        submission.invalid_reason ||
+        submission.issues.length > 0) && (
         <section className="space-y-inline">
           <h2 className="font-heading font-semibold">Why this isn&apos;t earning</h2>
 
@@ -140,25 +132,15 @@ export function SubmissionDetail({
             </p>
           )}
 
-          {submission.invalid_reason && (
-            <div className="space-y-inline p-card rounded-xl border border-destructive/30 bg-destructive/5">
-              <p className="text-sm">
-                Invalidated: {humanise(submission.invalid_reason).toLowerCase()}
-                {submission.invalidated_at &&
-                  ` on ${formatDateTime(submission.invalidated_at)}`}
-                .
-              </p>
-              {canRevalidate(submission) && (
-                <>
-                  <p className="text-sm text-muted-foreground">
-                    Reconnect the account this was posted from on the Profile tab,
-                    then re-check it.
-                  </p>
-                  <RevalidateButton submissionId={submission.id} />
-                </>
-              )}
-            </div>
-          )}
+          <SubmissionIssues
+            issues={submission.issues}
+            invalidReason={submission.invalid_reason}
+            heading="Fix these, then re-check the post"
+          >
+            {submission.can_recheck && (
+              <RecheckButton submissionId={submission.id} refreshOnSuccess />
+            )}
+          </SubmissionIssues>
         </section>
       )}
 

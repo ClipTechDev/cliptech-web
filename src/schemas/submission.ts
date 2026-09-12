@@ -10,7 +10,6 @@ import type { PaginatedResponse, Platform } from "@/schemas/common";
 
 /** Mirrors submission.Status in internal/features/submission/model.go. */
 export const SUBMISSION_STATUSES = [
-  "pending",
   "approved",
   "rejected",
   "invalidated",
@@ -42,7 +41,7 @@ export type Submission = {
    */
   campaign_status: CampaignStatus | "";
   user_id: string;
-  social_account_id: string;
+  social_account_id: string | null;
 
   platform: Platform;
   post_url: string;
@@ -59,6 +58,8 @@ export type Submission = {
   pending_amount: number;
 
   status: SubmissionStatus;
+  issues: SubmissionIssue[];
+  can_recheck: boolean;
   invalid_reason: string | null;
   invalidated_at: string | null;
   rejection_reason: string | null;
@@ -99,20 +100,18 @@ export type SubmissionLogsResponse = PaginatedResponse<"logs", SubmissionLog>;
  * submission.Status, which would mean a migration and two sources of truth for
  * the same fact.
  */
-export type SubmissionDisplayStatus = SubmissionStatus | "tracking" | "completed";
+export type SubmissionDisplayStatus =
+  | SubmissionStatus
+  | "tracking"
+  | "completed"
+  | "needs_fixing";
 
-/**
- * Narrows an approved submission to the more specific thing it actually is.
- *
- * Everything it needs travels on the submission, so a listing row and the
- * detail screen resolve the same badge - the API attaches campaign_status
- * beside campaign_name in one lookup per page.
- */
 export function submissionDisplayStatus(
   submission: Submission
 ): SubmissionDisplayStatus {
-  // Only an approved post has anywhere further to go. Pending, rejected,
-  // invalidated and flagged are all where they are going to stay.
+  if (submission.status === "rejected" && submission.issues.length > 0) {
+    return "needs_fixing";
+  }
   if (submission.status !== "approved") return submission.status;
 
   // A settled campaign is final: nothing about this submission changes again.
@@ -134,24 +133,60 @@ export function submissionDisplayStatus(
 
 export const SUBMISSION_FILTER_KEYS = ["status", "platform"] as const;
 
-/**
- * Invalid reasons the API will let a creator retry through
- * POST /v1/submissions/:id/revalidate. Anything else is terminal, and the
- * endpoint answers 409.
- */
-export const RECOVERABLE_INVALID_REASONS = [
+export const SUBMISSION_ISSUE_CODES = [
   "account_disconnected",
-  "account_auth_failed",
-  "ownership_mismatch",
-  "post_private",
+  "tracking_unavailable",
+  "post_unreadable",
+  "not_post_owner",
+  "missing_hashtags",
 ] as const;
 
-export function canRevalidate(submission: Submission): boolean {
-  return (
-    submission.status === "invalidated" &&
-    submission.invalid_reason !== null &&
-    (RECOVERABLE_INVALID_REASONS as readonly string[]).includes(submission.invalid_reason)
-  );
+export type SubmissionIssueCode = (typeof SUBMISSION_ISSUE_CODES)[number];
+
+export type SubmissionIssue = {
+  code: SubmissionIssueCode | string;
+  detail?: string;
+};
+
+type IssueCopy = { title: string; fix: string };
+
+export const SUBMISSION_ISSUE_COPY: Record<SubmissionIssueCode, IssueCopy> = {
+  account_disconnected: {
+    title: "That platform isn't connected",
+    fix: "Connect the account you posted from on the Profile tab, then re-check.",
+  },
+  tracking_unavailable: {
+    title: "We can't track that platform right now",
+    fix: "This is on our side. Try re-checking in a little while.",
+  },
+  post_unreadable: {
+    title: "We couldn't read that post",
+    fix: "Make sure it's public and still online, then re-check.",
+  },
+  not_post_owner: {
+    title: "That post isn't on your connected account",
+    fix: "Submit a post from an account you've connected, or connect the account that published it.",
+  },
+  missing_hashtags: {
+    title: "The caption is missing required hashtags",
+    fix: "Add them to the post's caption, then re-check.",
+  },
+};
+
+export function issueCopy(issue: SubmissionIssue): IssueCopy {
+  const copy = SUBMISSION_ISSUE_COPY[issue.code as SubmissionIssueCode];
+  if (!copy) {
+    return { title: humaniseIssueCode(issue.code), fix: "Fix the post, then re-check." };
+  }
+  if (issue.code === "missing_hashtags" && issue.detail) {
+    return { ...copy, fix: `Add ${issue.detail} to the post's caption, then re-check.` };
+  }
+  return copy;
+}
+
+function humaniseIssueCode(code: string): string {
+  const spaced = code.replace(/_/g, " ");
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
 /**

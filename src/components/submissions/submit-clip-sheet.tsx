@@ -15,6 +15,7 @@ import {
   platformFromPostUrl,
   submissionFormSchema,
   type SubmissionFormValues,
+  type SubmissionIssue,
 } from "@/schemas/submission";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,20 +43,12 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { errorMessage } from "@/components/shared/query-state";
+import { SubmissionIssues } from "@/components/submissions/submission-issues";
 
-/**
- * Mounted once in the (app) layout; opened from anywhere via the UI store.
- *
- * The submit call is slow and synchronous - the API resolves the post against
- * the platform and checks its owner inline - so the pending state has to say
- * what is happening, not just spin. Its failures are also the most specific
- * copy the API produces ("that post does not belong to your connected
- * account"), so they are surfaced verbatim next to the field rather than
- * flattened into a toast.
- */
 export function SubmitClipSheet() {
   const { submitOpen, submitCampaignId, closeSubmit } = useUiStore();
   const [formError, setFormError] = React.useState<string | null>(null);
+  const [issues, setIssues] = React.useState<SubmissionIssue[]>([]);
 
   const campaigns = useJoinableCampaignsQuery(submitOpen);
   const accounts = useSocialAccountsQuery();
@@ -66,12 +59,11 @@ export function SubmitClipSheet() {
     defaultValues: { campaign_id: submitCampaignId ?? "", post_url: "" },
   });
 
-  // Re-seed on each open: the sheet stays mounted, so without this it would
-  // reopen holding the previous campaign and a stale error.
   React.useEffect(() => {
     if (submitOpen) {
       form.reset({ campaign_id: submitCampaignId ?? "", post_url: "" });
       setFormError(null);
+      setIssues([]);
     }
   }, [submitOpen, submitCampaignId, form]);
 
@@ -81,8 +73,6 @@ export function SubmitClipSheet() {
   const detectedPlatform = platformFromPostUrl(postUrl);
   const selectedCampaign = campaigns.data?.find((campaign) => campaign.id === campaignId);
 
-  // Two checks the API would also make, run here so the creator finds out
-  // before waiting on a 20-second round trip.
   const connectedPlatforms = new Set(
     (accounts.data ?? [])
       .filter((account) => !account.needs_reconnect)
@@ -97,10 +87,15 @@ export function SubmitClipSheet() {
 
   function onSubmit(values: SubmissionFormValues) {
     setFormError(null);
+    setIssues([]);
     createSubmission.mutate(values, {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        if (response.submission.issues.length > 0) {
+          setIssues(response.submission.issues);
+          return;
+        }
         toast.success("Clip submitted", {
-          description: "We'll start tracking its views shortly.",
+          description: "We've started tracking its views.",
         });
         closeSubmit();
       },
@@ -200,6 +195,8 @@ export function SubmitClipSheet() {
             )}
 
             {formError && <p className="text-sm text-destructive">{formError}</p>}
+
+            <SubmissionIssues issues={issues} heading="Saved, but not tracking yet" />
 
             <Button
               type="submit"

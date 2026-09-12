@@ -41,13 +41,6 @@ export function useSubmissionsInfiniteQuery(params: ListParams) {
   });
 }
 
-/**
- * Submitting a clip is a slow, synchronous call: the service resolves the post
- * against the platform's API and verifies the post's owner matches a connected
- * account, with a 20s timeout of its own (submission/service.go). The client
- * timeout is set above that so the server's own error - which is specific and
- * worth showing - wins the race against ours.
- */
 const SUBMIT_TIMEOUT_MS = 30_000;
 
 export function useCreateSubmissionMutation() {
@@ -74,22 +67,19 @@ export function useCreateSubmissionMutation() {
   });
 }
 
-/**
- * Retry a post that was invalidated for a recoverable reason - almost always
- * after the creator has reconnected the account it was posted from. The API
- * answers 409 for any other reason, so callers should gate on canRevalidate().
- */
-export function useRevalidateSubmissionMutation() {
+export function useRecheckSubmissionMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) =>
-      apiFetch<SubmissionResponse>(`/submissions/${id}/revalidate`, { method: "POST" }),
+      apiFetch<SubmissionResponse>(`/submissions/${id}/recheck`, {
+        method: "POST",
+        timeoutMs: SUBMIT_TIMEOUT_MS,
+      }),
     onSuccess: (response) => {
       queryClient.setQueryData(submissionsKeys.detail(response.submission.id), response);
       queryClient.invalidateQueries({ queryKey: submissionsKeys.lists() });
       queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
-      // Revalidating can restore earnings, which sit on the user record.
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
     },
   });

@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, ExternalLink, Loader2, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
+import { ChevronRight, ExternalLink } from "lucide-react";
 
 import {
   formatCompactNumber,
@@ -10,35 +9,18 @@ import {
   formatRelative,
   platformLabel,
 } from "@/lib/format";
-import { useRevalidateSubmissionMutation } from "@/hooks/use-submissions";
-import {
-  canRevalidate,
-  submissionDisplayStatus,
-  type Submission,
-} from "@/schemas/submission";
-import { Button } from "@/components/ui/button";
-import { errorMessage } from "@/components/shared/query-state";
+import { submissionDisplayStatus, type Submission } from "@/schemas/submission";
+import { RecheckButton } from "@/components/submissions/recheck-button";
+import { SubmissionIssues } from "@/components/submissions/submission-issues";
 import { SubmissionStatusBadge } from "@/components/submissions/submission-status-badge";
 
-/**
- * One posted clip. The three numbers that matter are payable views, what they
- * have earned, and how much of that is still pending - raw views are shown for
- * context but are not what pays.
- */
 export function SubmissionCard({ submission }: { submission: Submission }) {
-  const revalidate = useRevalidateSubmissionMutation();
-  const recoverable = canRevalidate(submission);
-
   const status = submissionDisplayStatus(submission);
 
   return (
     <article className="space-y-inline p-card rounded-xl border bg-card">
       <div className="gap-inline flex items-start justify-between">
         <div className="min-w-0 space-y-0.5">
-          {/* The campaign leads, because "which campaign was this for" is the
-              first thing a creator scanning their clips is looking for - and
-              it doubles as the way into the detail screen, where the tracking
-              history lives. */}
           <Link
             href={`/dashboard/submissions/${submission.id}`}
             className="gap-tight flex items-center text-sm font-medium hover:underline"
@@ -73,10 +55,6 @@ export function SubmissionCard({ submission }: { submission: Submission }) {
         />
       </div>
 
-      {/* The single most-asked question about this screen: why the payable
-          count is lower than the number on the post itself. starting_views is
-          the answer, and it is only worth saying when it is not zero - a post
-          submitted at zero views has nothing to explain. */}
       {submission.starting_views > 0 && (
         <p className="text-xs text-muted-foreground">
           Had {formatCompactNumber(submission.starting_views)} views when you
@@ -88,29 +66,14 @@ export function SubmissionCard({ submission }: { submission: Submission }) {
         <p className="text-xs text-destructive">{submission.rejection_reason}</p>
       )}
 
-      {submission.invalid_reason && (
-        <div className="space-y-2">
-          <p className="text-xs text-destructive">
-            Invalidated: {submission.invalid_reason.replace(/_/g, " ")}
-          </p>
-          {recoverable && (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={revalidate.isPending}
-              onClick={() =>
-                revalidate.mutate(submission.id, {
-                  onSuccess: () => toast.success("Submission re-checked"),
-                  onError: (error) => toast.error(errorMessage(error)),
-                })
-              }
-            >
-              {revalidate.isPending ? <Loader2 className="animate-spin" /> : <RefreshCw />}
-              Try again
-            </Button>
-          )}
-        </div>
-      )}
+      <SubmissionIssues
+        issues={submission.issues}
+        invalidReason={submission.invalid_reason}
+      >
+        {submission.can_recheck && (
+          <RecheckButton submissionId={submission.id} size="sm" />
+        )}
+      </SubmissionIssues>
 
       <p className="text-xs text-muted-foreground">
         Posted {formatRelative(submission.submitted_at)}

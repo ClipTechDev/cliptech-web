@@ -14,26 +14,11 @@ import type { Platform } from "@/schemas/common";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  submitClipAction,
-} from "@/app/(app)/dashboard/campaigns/[id]/actions";
+import { RecheckButton } from "@/components/submissions/recheck-button";
+import { SubmissionIssues } from "@/components/submissions/submission-issues";
+import { submitClipAction } from "@/app/(app)/dashboard/campaigns/[id]/actions";
 import { initialSubmitClipState } from "@/app/(app)/dashboard/campaigns/[id]/submit-clip-state";
 
-/**
- * Submit a clip to the campaign already on screen.
- *
- * A real `<form action={serverFunction}>`, so it posts and validates without
- * waiting on hydration - and because the campaign is fixed by the route, there
- * is no picker to load and nothing to choose. The sheet on the Clips tab
- * remains the path for "submit to *some* campaign"; this is the path for
- * "submit to *this* one".
- *
- * `connectedPlatforms` is fetched with the campaign on the server. The two
- * checks it powers are ones the API would also make, run here so a creator
- * finds out before waiting on a 20-second round trip to the platform. `null`
- * means that lookup failed - the check is an optimisation, so an unknown
- * answer skips it and lets the server stay the authority.
- */
 export function SubmitClipForm({
   campaign,
   connectedPlatforms,
@@ -49,14 +34,27 @@ export function SubmitClipForm({
   const [postUrl, setPostUrl] = React.useState("");
   const queryClient = useQueryClient();
 
-  // The Clips tab and the balance rollup are client-cached, and a submission
-  // just changed both. The server half of the page is revalidated by the
-  // action itself; this is the other half.
   React.useEffect(() => {
-    if (state.status !== "success") return;
+    if (state.status !== "success" && state.status !== "issues") return;
     queryClient.invalidateQueries({ queryKey: submissionsKeys.lists() });
     queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
   }, [state, queryClient]);
+
+  if (state.status === "issues") {
+    return (
+      <section className="space-y-inline">
+        <SubmissionIssues issues={state.issues} heading="Saved, but not tracking yet">
+          <RecheckButton submissionId={state.submissionId} refreshOnSuccess />
+        </SubmissionIssues>
+        <Link
+          href={`/dashboard/submissions/${state.submissionId}`}
+          className={buttonVariants({ variant: "ghost", size: "lg" })}
+        >
+          View this clip
+        </Link>
+      </section>
+    );
+  }
 
   if (state.status === "success") {
     return (
@@ -65,7 +63,7 @@ export function SubmitClipForm({
         <div className="space-y-tight">
           <p className="font-medium">Clip submitted</p>
           <p className="text-sm text-muted-foreground">
-            We&apos;ll start tracking its views shortly.
+            We&apos;ve started tracking its views.
           </p>
         </div>
         <Link
@@ -98,9 +96,6 @@ export function SubmitClipForm({
     !campaign.allowed_platforms.includes(detected);
   const postUrlPlaceholder = placeholderForPlatforms(campaign.allowed_platforms);
 
-  // Only the two local checks disable the button. The action's own errors do
-  // not: they are answers about one attempt, and blocking a retry on them
-  // would strand a creator whose post has since gone public.
   const blocked = notConnected || notAllowed;
 
   return (

@@ -20,8 +20,6 @@ export async function submitClipAction(
   });
 
   if (!parsed.success) {
-    // One message at a time: the form has two fields and the first failure is
-    // the one to fix. `path[0]` is the field name zod was walking.
     const issue = parsed.error.issues[0];
     const field = issue.path[0];
 
@@ -53,10 +51,16 @@ export async function submitClipAction(
     throw error;
   }
 
-  // A new submission consumes budget, so the campaign a creator is looking at
-  // and the list they came from are both out of date.
   revalidatePath(`/dashboard/campaigns/${parsed.data.campaign_id}`);
   revalidatePath("/dashboard/campaigns");
+
+  if (created.submission.issues.length > 0) {
+    return {
+      status: "issues",
+      submissionId: created.submission.id,
+      issues: created.submission.issues,
+    };
+  }
 
   return { status: "success", submissionId: created.submission.id };
 }
