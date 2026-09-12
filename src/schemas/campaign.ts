@@ -9,6 +9,7 @@ import type { PaginatedResponse, Platform } from "@/schemas/common";
 /** Mirrors campaign.Status in internal/features/campaign/model.go. */
 export const CAMPAIGN_STATUSES = [
   "draft",
+  "pending_approval",
   "active",
   "submissions_closed",
   "paused",
@@ -19,11 +20,18 @@ export const CAMPAIGN_STATUSES = [
 export type CampaignStatus = (typeof CAMPAIGN_STATUSES)[number];
 
 /**
- * What a creator can ever see. Browse forces PublicOnly, so `draft` and
- * `archived` never come back and a detail request for one 404s.
+ * What a creator can ever see. Browse forces PublicOnly, so `draft`,
+ * `pending_approval` and `archived` never come back and a detail request for
+ * one 404s.
  */
+const HIDDEN_CAMPAIGN_STATUSES: readonly CampaignStatus[] = [
+  "draft",
+  "pending_approval",
+  "archived",
+];
+
 export const PUBLIC_CAMPAIGN_STATUSES = CAMPAIGN_STATUSES.filter(
-  (status) => status !== "draft" && status !== "archived"
+  (status) => !HIDDEN_CAMPAIGN_STATUSES.includes(status)
 );
 
 export type Campaign = {
