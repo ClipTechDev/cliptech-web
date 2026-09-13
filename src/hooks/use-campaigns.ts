@@ -1,9 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api-client";
-import { listParamsToQuery, type ListParams } from "@/lib/list-params";
+import {
+  DEFAULT_PAGE_SIZE,
+  listParamsToQuery,
+  type ListParams,
+} from "@/lib/list-params";
 import type { CampaignsListResponse } from "@/schemas/campaign";
 
 /**
@@ -18,7 +22,21 @@ export const campaignsKeys = {
     [...campaignsKeys.lists(), listParamsToQuery(params)] as const,
   details: () => [...campaignsKeys.all, "detail"] as const,
   detail: (id: string) => [...campaignsKeys.details(), id] as const,
+  mine: () => [...campaignsKeys.all, "mine"] as const,
 };
+
+export function useMyCampaignsInfiniteQuery() {
+  return useInfiniteQuery({
+    queryKey: campaignsKeys.mine(),
+    queryFn: ({ pageParam }) =>
+      apiFetch<CampaignsListResponse>("/campaigns/mine", {
+        query: { page: pageParam, limit: DEFAULT_PAGE_SIZE },
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination.has_next ? lastPage.pagination.page + 1 : undefined,
+  });
+}
 
 /**
  * The campaign list the submit sheet's picker needs: joinable only, one page,

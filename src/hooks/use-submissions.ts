@@ -63,6 +63,7 @@ export function useCreateSubmissionMutation() {
       queryClient.invalidateQueries({
         queryKey: campaignsKeys.detail(response.submission.campaign_id),
       });
+      queryClient.invalidateQueries({ queryKey: campaignsKeys.mine() });
     },
   });
 }
