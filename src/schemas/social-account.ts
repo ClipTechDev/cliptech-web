@@ -4,7 +4,8 @@ import type { CollectionResponse, Platform } from "@/schemas/common";
  * Mirrors social.AccountResponse in internal/features/social/dto.go.
  *
  * This listing is unpaginated - it answers `{ success, accounts }` with no
- * pagination key, because a creator has at most one account per platform.
+ * pagination key. A creator can connect more than one account per platform;
+ * the API tracks and refreshes each row independently.
  */
 
 /** Mirrors social.Status in internal/features/social/model.go. */

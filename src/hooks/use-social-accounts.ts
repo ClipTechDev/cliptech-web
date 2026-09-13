@@ -19,8 +19,9 @@ export function socialAccountsOptions() {
   return queryOptions({
     queryKey: socialAccountsKeys.list(),
     queryFn: () => apiFetch<SocialAccountsResponse>("/social/accounts"),
-    // Unpaginated: a creator has at most one account per platform, so this
-    // response carries no `pagination` key to read.
+    // Unpaginated: a creator can connect several accounts per platform, but
+    // never enough of them for pagination to matter, so this response
+    // carries no `pagination` key to read.
     select: (response: SocialAccountsResponse) => response.accounts,
   });
 }
