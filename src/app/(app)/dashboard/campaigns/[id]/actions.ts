@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 
 import { ApiError, NetworkError } from "@/lib/api-client";
 import { serverFetch } from "@/lib/api-server";
-import { submissionFormSchema, type SubmissionResponse } from "@/schemas/submission";
+import { submissionFormSchema } from "@/schemas/submission-form";
+import type { SubmissionResponse } from "@/schemas/submission";
 import type { SubmitClipState } from "./submit-clip-state";
 
 const SUBMIT_TIMEOUT_MS = 30_000;

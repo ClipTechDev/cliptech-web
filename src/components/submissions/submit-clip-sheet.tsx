@@ -12,11 +12,10 @@ import { useSocialAccountsQuery } from "@/hooks/use-social-accounts";
 import { useCreateSubmissionMutation } from "@/hooks/use-submissions";
 import { useUiStore } from "@/stores/ui-store";
 import {
-  platformFromPostUrl,
   submissionFormSchema,
   type SubmissionFormValues,
-  type SubmissionIssue,
-} from "@/schemas/submission";
+} from "@/schemas/submission-form";
+import { platformFromPostUrl, type SubmissionIssue } from "@/schemas/submission";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -46,7 +45,9 @@ import { errorMessage } from "@/components/shared/query-state";
 import { SubmissionIssues } from "@/components/submissions/submission-issues";
 
 export function SubmitClipSheet() {
-  const { submitOpen, submitCampaignId, closeSubmit } = useUiStore();
+  const submitOpen = useUiStore((state) => state.submitOpen);
+  const submitCampaignId = useUiStore((state) => state.submitCampaignId);
+  const closeSubmit = useUiStore((state) => state.closeSubmit);
   const [formError, setFormError] = React.useState<string | null>(null);
   const [issues, setIssues] = React.useState<SubmissionIssue[]>([]);
 

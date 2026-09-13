@@ -46,7 +46,7 @@ export function BottomNav() {
     <nav
       aria-label="Main"
       className={cn(
-        "fixed inset-x-0 bottom-0 z-40 border-t bg-background/80 backdrop-blur-lg",
+        "fixed inset-x-0 bottom-0 z-40 transform-gpu border-t bg-background/80 backdrop-blur-sm",
         "pb-[env(safe-area-inset-bottom)]",
         "sm:inset-x-auto sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2",
         "sm:rounded-full sm:border sm:pb-0 sm:shadow-lg sm:shadow-black/5"

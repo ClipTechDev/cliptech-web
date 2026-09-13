@@ -12,8 +12,8 @@ import { DEFAULT_PAGE_SIZE, listParamsToQuery, type ListParams } from "@/lib/lis
 import { authKeys } from "@/hooks/use-auth";
 import { campaignsKeys } from "@/hooks/use-campaigns";
 import { dashboardKeys } from "@/hooks/use-dashboard";
+import type { SubmissionFormValues } from "@/schemas/submission-form";
 import type {
-  SubmissionFormValues,
   SubmissionResponse,
   SubmissionsListResponse,
 } from "@/schemas/submission";

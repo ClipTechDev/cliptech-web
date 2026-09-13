@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { ChevronRight, ExternalLink } from "lucide-react";
 
@@ -14,7 +15,11 @@ import { RecheckButton } from "@/components/submissions/recheck-button";
 import { SubmissionIssues } from "@/components/submissions/submission-issues";
 import { SubmissionStatusBadge } from "@/components/submissions/submission-status-badge";
 
-export function SubmissionCard({ submission }: { submission: Submission }) {
+export const SubmissionCard = React.memo(function SubmissionCard({
+  submission,
+}: {
+  submission: Submission;
+}) {
   const status = submissionDisplayStatus(submission);
 
   return (
@@ -82,7 +87,7 @@ export function SubmissionCard({ submission }: { submission: Submission }) {
       </p>
     </article>
   );
-}
+});
 
 function Metric({
   label,

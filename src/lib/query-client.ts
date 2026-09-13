@@ -9,6 +9,9 @@ function makeQueryClient() {
         // is very obviously out of date.
         staleTime: 30 * 1000,
         retry: 1,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: true,
+        gcTime: 10 * 60 * 1000,
       },
     },
   });

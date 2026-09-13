@@ -1,11 +1,22 @@
 "use client";
 
 import type { ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
 
 import { getQueryClient } from "@/lib/query-client";
+
+const ReactQueryDevtools =
+  process.env.NODE_ENV === "development"
+    ? dynamic(
+        () =>
+          import("@tanstack/react-query-devtools").then(
+            (module) => module.ReactQueryDevtools
+          ),
+        { ssr: false }
+      )
+    : null;
 
 export function Providers({ children }: { children: ReactNode }) {
   const queryClient = getQueryClient();
@@ -25,7 +36,9 @@ export function Providers({ children }: { children: ReactNode }) {
         {/* top-left, unlike the admin's bottom-left: the bottom bar spans the
             full width on a phone, and the devtools toggle lands squarely on
             the first tab. The page title it covers up here is not clickable. */}
-        <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-left" />
+        {ReactQueryDevtools && (
+          <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-left" />
+        )}
       </QueryClientProvider>
     </ThemeProvider>
   );

@@ -4,7 +4,7 @@ import { AuthGuard } from "@/components/layout/auth-guard";
 import { AppShell } from "@/components/layout/app-shell";
 import { PushMessageListener } from "@/components/notifications/push-message-listener";
 import { PushPermissionPrompt } from "@/components/notifications/push-permission-prompt";
-import { SubmitClipSheet } from "@/components/submissions/submit-clip-sheet";
+import { SubmitClipSheetMount } from "@/components/submissions/submit-clip-sheet-mount";
 
 /**
  * Everything behind a session. AuthGuard reads `?next=` state through
@@ -24,7 +24,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
           <PushPermissionPrompt />
           {children}
         </AppShell>
-        <SubmitClipSheet />
+        <SubmitClipSheetMount />
         <PushMessageListener />
       </AuthGuard>
     </Suspense>

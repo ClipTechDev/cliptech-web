@@ -15,7 +15,7 @@ export function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="-mx-card px-card py-inline mb-2 sticky top-0 z-30 border-b bg-background/85 backdrop-blur-lg sm:-mx-6 sm:px-6">
+    <div className="-mx-card px-card py-inline mb-2 sticky top-0 z-30 transform-gpu border-b bg-background/85 backdrop-blur-sm sm:-mx-6 sm:px-6">
       <div className="gap-inline flex items-start justify-between">
         <div className="min-w-0 space-y-0.5">
           <h1 className="font-heading truncate text-xl font-semibold tracking-tight sm:text-2xl">
