@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Clapperboard, House, Megaphone, UserRound, type LucideIcon } from "lucide-react";
+import {
+  Clapperboard,
+  House,
+  Megaphone,
+  UserRound,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -16,6 +23,7 @@ const TABS: Tab[] = [
   { href: "/dashboard", label: "Home", icon: House },
   { href: "/dashboard/campaigns", label: "Campaigns", icon: Megaphone },
   { href: "/dashboard/submissions", label: "Clips", icon: Clapperboard },
+  { href: "/dashboard/earnings", label: "Earnings", icon: Wallet },
   { href: "/dashboard/profile", label: "Profile", icon: UserRound },
 ];
 

@@ -9,7 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { QueryState } from "@/components/shared/query-state";
 import { PushNotificationsCard } from "@/components/notifications/push-notifications-card";
 import { AvatarUpload } from "@/components/profile/avatar-upload";
-import { BalanceSummary } from "@/components/profile/balance-summary";
 import { PaymentMethods } from "@/components/profile/payment-methods";
 import { ProfileForm } from "@/components/profile/profile-form";
 import {
@@ -22,7 +21,6 @@ import { ThemeToggle } from "@/components/profile/theme-toggle";
 
 const SECTIONS: ProfileSectionLink[] = [
   { id: "personal-info", label: "Personal info" },
-  { id: "earnings", label: "Earnings" },
   { id: "connected-accounts", label: "Connected accounts" },
   { id: "payout-methods", label: "Payout methods" },
   { id: "notifications", label: "Notifications" },
@@ -64,14 +62,6 @@ export function ProfileScreen() {
                 <AvatarUpload user={user} />
                 <ProfileForm user={user} />
               </div>
-            </Section>
-
-            <Section
-              id="earnings"
-              title="Earnings"
-              description="What you've made so far, and what's still being verified."
-            >
-              <BalanceSummary />
             </Section>
 
             <Section
