@@ -29,6 +29,14 @@ export function SocialCallback() {
     if (handled.current) return;
     handled.current = true;
 
+    // Nothing to report: this path is only ever reached with a result on the
+    // query string, so a bare visit is someone who navigated here, not a
+    // connection that failed.
+    if (!status) {
+      router.replace(PROFILE_PATH);
+      return;
+    }
+
     const name = platform ? platformLabel(platform) : "Account";
 
     if (status === "connected") {

@@ -43,14 +43,18 @@ export function SocialAccounts() {
     });
   }
 
-  function startConnect(platform: Platform, target: string) {
+  function startConnect(platform: Platform, accountId?: string) {
+    const target = accountId ? `account:${accountId}` : `add:${platform}`;
     setPendingConnect(target);
-    connect.mutate(platform, {
-      onError: (error) => {
-        setPendingConnect(null);
-        toast.error(errorMessage(error));
+    connect.mutate(
+      { platform, accountId },
+      {
+        onError: (error) => {
+          setPendingConnect(null);
+          toast.error(errorMessage(error));
+        },
       },
-    });
+    );
   }
 
   return (
@@ -84,8 +88,8 @@ export function SocialAccounts() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    disabled={connect.isPending}
-                    onClick={() => startConnect(platform, addTarget)}
+                    disabled={pendingConnect === addTarget}
+                    onClick={() => startConnect(platform)}
                   >
                     {pendingConnect === addTarget ? (
                       <Loader2 className="animate-spin" />
@@ -103,8 +107,8 @@ export function SocialAccounts() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={connect.isPending}
-                    onClick={() => startConnect(platform, addTarget)}
+                    disabled={pendingConnect === addTarget}
+                    onClick={() => startConnect(platform)}
                   >
                     {pendingConnect === addTarget ? (
                       <Loader2 className="animate-spin" />
@@ -120,8 +124,8 @@ export function SocialAccounts() {
                     <SocialAccountRow
                       key={account.id}
                       account={account}
-                      onReconnect={() => startConnect(platform, `account:${account.id}`)}
-                      reconnectDisabled={connect.isPending}
+                      onReconnect={() => startConnect(platform, account.id)}
+                      reconnectDisabled={pendingConnect === `account:${account.id}`}
                       reconnecting={pendingConnect === `account:${account.id}`}
                       onDisconnect={() =>
                         disconnect.mutate(account.id, {
@@ -193,7 +197,9 @@ function SocialAccountRow({
           connected {formatRelative(connectedAt)}
         </p>
         {account.last_error && (
-          <p className="truncate text-xs text-destructive">{account.last_error}</p>
+          <p className="truncate text-xs text-destructive">
+            We couldn&apos;t renew this connection. Reconnect to keep it tracking.
+          </p>
         )}
       </div>
 

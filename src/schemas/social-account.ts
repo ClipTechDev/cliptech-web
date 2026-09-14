@@ -21,8 +21,10 @@ export type SocialAccount = {
   scopes: string[];
   /**
    * Computed server-side: true when the status is not connected, the access
-   * token is missing, or it is past expiry. Drives the Reconnect CTA - a
-   * status of `connected` alone is not enough.
+   * token is missing, or it is past expiry with no refresh token to renew it
+   * with. Drives the Reconnect CTA - a status of `connected` alone is not
+   * enough, and an expired token alone is not enough either, since every
+   * platform but Instagram can renew one without the creator.
    */
   needs_reconnect: boolean;
   token_expires_at: string | null;
@@ -56,6 +58,9 @@ export const SOCIAL_CONNECT_ERRORS: Record<string, string> = {
   missing_code: "The provider didn't send back an authorisation code.",
   not_configured: "That platform isn't set up on this server yet.",
   already_linked: "That account is already linked to another ClipTech profile.",
+  wrong_account:
+    "That's a different account from the one you were reconnecting. Sign in as that account, or add this one separately.",
+  forbidden: "That connection doesn't belong to your profile.",
   provider_rejected: "The provider rejected the connection.",
   connection_failed: "We couldn't finish the connection. Please try again.",
 };

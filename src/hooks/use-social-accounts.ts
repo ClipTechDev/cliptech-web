@@ -15,6 +15,8 @@ export const socialAccountsKeys = {
   list: () => [...socialAccountsKeys.all, "list"] as const,
 };
 
+export type ConnectSocialInput = { platform: Platform; accountId?: string };
+
 export function socialAccountsOptions() {
   return queryOptions({
     queryKey: socialAccountsKeys.list(),
@@ -40,11 +42,18 @@ export function useSocialAccountsQuery() {
  *
  * The creator comes back to SOCIAL_CONNECT_REDIRECT_PATH (default
  * /settings/socials), which this app serves; see src/app/settings/socials.
+ *
+ * Pass `accountId` to reconnect one existing connection rather than add a new
+ * one: the API seals it into the OAuth state and refuses the callback if the
+ * creator picks a different handle at the consent screen, which would
+ * otherwise file a second account instead of repairing this one.
  */
 export function useConnectSocialMutation() {
   return useMutation({
-    mutationFn: (platform: Platform) =>
-      apiFetch<SocialConnectResponse>(`/social/${platform}/connect`),
+    mutationFn: ({ platform, accountId }: ConnectSocialInput) =>
+      apiFetch<SocialConnectResponse>(`/social/${platform}/connect`, {
+        query: { account_id: accountId },
+      }),
     onSuccess: (response) => {
       window.location.href = response.authorization_url;
     },
