@@ -137,6 +137,7 @@ export const SUBMISSION_ISSUE_CODES = [
   "post_unreadable",
   "not_post_owner",
   "missing_hashtags",
+  "views_unavailable",
 ] as const;
 
 export type SubmissionIssueCode = (typeof SUBMISSION_ISSUE_CODES)[number];
@@ -168,6 +169,10 @@ export const SUBMISSION_ISSUE_COPY: Record<SubmissionIssueCode, IssueCopy> = {
   missing_hashtags: {
     title: "The caption is missing required hashtags",
     fix: "Add them to the post's caption, then re-check.",
+  },
+  views_unavailable: {
+    title: "That post doesn't report a view count",
+    fix: "Only videos and reels report views — photos and carousels never do. Submit a video instead.",
   },
 };
 
