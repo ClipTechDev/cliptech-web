@@ -106,7 +106,7 @@ export function SubmitClipSheet() {
 
   return (
     <Sheet open={submitOpen} onOpenChange={(open) => !open && closeSubmit()}>
-      <SheetContent side="bottom" className="max-h-[92svh] overflow-y-auto rounded-t-2xl">
+      <SheetContent side="bottom" className="max-h-[92svh] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Submit a clip</SheetTitle>
           <SheetDescription>

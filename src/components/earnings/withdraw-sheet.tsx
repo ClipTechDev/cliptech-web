@@ -112,7 +112,7 @@ export function WithdrawSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[92svh] overflow-y-auto rounded-t-2xl">
+      <SheetContent side="bottom" className="max-h-[92svh] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Withdraw earnings</SheetTitle>
           <SheetDescription>

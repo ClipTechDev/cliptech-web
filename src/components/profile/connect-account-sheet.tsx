@@ -160,7 +160,7 @@ function ConnectFlow({
 
   return (
     <Sheet open onOpenChange={(next) => !next && onClose()}>
-      <SheetContent side="right" className="flex flex-col gap-0 overflow-y-auto">
+      <SheetContent side="bottom" className="max-h-[92svh] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>
             {target.accountId ? `Reconnect ${name}` : `Connect ${name}`}
