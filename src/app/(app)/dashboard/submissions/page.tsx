@@ -13,11 +13,11 @@ export default function SubmissionsPage() {
       <PageHeader
         title="Your clips"
         description="Everything you've submitted, and what it's earned."
-        action={<SubmitClipButton />}
       />
       <Suspense fallback={<Skeleton className="h-40 w-full rounded-xl" />}>
         <SubmissionList />
       </Suspense>
+      <SubmitClipButton />
     </>
   );
 }
