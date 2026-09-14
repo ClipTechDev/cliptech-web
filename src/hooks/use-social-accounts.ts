@@ -7,12 +7,20 @@ import type { Platform } from "@/schemas/common";
 import type {
   SocialAccountResponse,
   SocialAccountsResponse,
+  SocialClaimResponse,
+  SocialClaimsResponse,
   SocialConnectResponse,
+  StartClaimInput,
 } from "@/schemas/social-account";
 
 export const socialAccountsKeys = {
   all: ["social-accounts"] as const,
   list: () => [...socialAccountsKeys.all, "list"] as const,
+};
+
+export const socialClaimsKeys = {
+  all: ["social-claims"] as const,
+  list: () => [...socialClaimsKeys.all, "list"] as const,
 };
 
 export type ConnectSocialInput = { platform: Platform; accountId?: string };
@@ -56,6 +64,77 @@ export function useConnectSocialMutation() {
       }),
     onSuccess: (response) => {
       window.location.href = response.authorization_url;
+    },
+  });
+}
+
+export function socialClaimsOptions() {
+  return queryOptions({
+    queryKey: socialClaimsKeys.list(),
+    queryFn: () => apiFetch<SocialClaimsResponse>("/social/claims"),
+  });
+}
+
+/**
+ * Open verifications, so a creator who closes the sheet or reloads mid-flow is
+ * shown the code they were already given rather than being issued a new one.
+ *
+ * The response also carries `platforms`, the list the server will actually
+ * accept a claim for. It is narrower than CODE_VERIFIABLE_PLATFORMS whenever a
+ * platform's app credential is missing, so the flow offers the code route only
+ * once this has confirmed it.
+ */
+export function useSocialClaimsQuery(enabled = true) {
+  return useQuery({ ...socialClaimsOptions(), enabled });
+}
+
+/**
+ * Starts a bio-code verification.
+ *
+ * The API resolves the profile before answering, so a failure here is usually
+ * the creator's link rather than our request: a private profile, a handle that
+ * does not exist, or an account somebody else already holds.
+ */
+export function useStartClaimMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ platform, profile_url }: StartClaimInput) =>
+      apiFetch<SocialClaimResponse>(`/social/${platform}/claim`, {
+        method: "POST",
+        body: { profile_url },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: socialClaimsKeys.all });
+    },
+  });
+}
+
+export function useVerifyClaimMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (platform: Platform) =>
+      apiFetch<SocialAccountResponse>(`/social/${platform}/claim/verify`, {
+        method: "POST",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: socialAccountsKeys.all });
+      queryClient.invalidateQueries({ queryKey: socialClaimsKeys.all });
+    },
+  });
+}
+
+export function useCancelClaimMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (platform: Platform) =>
+      apiFetch<{ success: boolean }>(`/social/${platform}/claim`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: socialClaimsKeys.all });
     },
   });
 }

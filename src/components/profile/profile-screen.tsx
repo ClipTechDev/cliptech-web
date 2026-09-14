@@ -67,7 +67,7 @@ export function ProfileScreen() {
             <Section
               id="connected-accounts"
               title="Connected accounts"
-              description="Link the social accounts you post from. You can connect more than one per platform, and a clip can only be submitted from a connected account."
+              description="Link the social accounts you post from — either by signing in, or by putting a short code in your bio. You can connect more than one per platform, and a clip can only be submitted from a connected account."
             >
               <SocialAccounts />
             </Section>

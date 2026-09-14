@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Plug, Plus, TriangleAlert } from "lucide-react";
+import { KeyRound, Loader2, Plug, Plus, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { formatRelative, platformLabel } from "@/lib/format";
@@ -15,6 +15,10 @@ import type { SocialAccount } from "@/schemas/social-account";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ConnectAccountSheet,
+  type ConnectTarget,
+} from "@/components/profile/connect-account-sheet";
 import { errorMessage, QueryState } from "@/components/shared/query-state";
 
 /**
@@ -25,9 +29,25 @@ import { errorMessage, QueryState } from "@/components/shared/query-state";
  */
 export function SocialAccounts() {
   const { data: accounts, error, isPending, refetch } = useSocialAccountsQuery();
-  const connect = useConnectSocialMutation();
   const disconnect = useDisconnectSocialMutation();
-  const [pendingConnect, setPendingConnect] = React.useState<string | null>(null);
+  const connect = useConnectSocialMutation();
+  const [connecting, setConnecting] = React.useState<ConnectTarget | null>(null);
+  const [upgrading, setUpgrading] = React.useState<string | null>(null);
+
+  // Upgrading a code account to OAuth needs no sheet: the route is already
+  // decided, so it goes straight to the provider.
+  function upgrade(account: SocialAccount) {
+    setUpgrading(account.id);
+    connect.mutate(
+      { platform: account.platform, accountId: account.id },
+      {
+        onError: (error) => {
+          setUpgrading(null);
+          toast.error(errorMessage(error));
+        },
+      },
+    );
+  }
 
   const byPlatform = new Map<Platform, SocialAccount[]>();
   for (const account of accounts ?? []) {
@@ -41,20 +61,6 @@ export function SocialAccounts() {
       if (a.needs_reconnect !== b.needs_reconnect) return a.needs_reconnect ? -1 : 1;
       return a.connected_at < b.connected_at ? 1 : -1;
     });
-  }
-
-  function startConnect(platform: Platform, accountId?: string) {
-    const target = accountId ? `account:${accountId}` : `add:${platform}`;
-    setPendingConnect(target);
-    connect.mutate(
-      { platform, accountId },
-      {
-        onError: (error) => {
-          setPendingConnect(null);
-          toast.error(errorMessage(error));
-        },
-      },
-    );
   }
 
   return (
@@ -73,7 +79,6 @@ export function SocialAccounts() {
       <div className="space-y-5">
         {PLATFORMS.map((platform) => {
           const platformAccounts = byPlatform.get(platform) ?? [];
-          const addTarget = `add:${platform}`;
 
           return (
             <div key={platform} className="space-y-2">
@@ -88,14 +93,9 @@ export function SocialAccounts() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    disabled={pendingConnect === addTarget}
-                    onClick={() => startConnect(platform)}
+                    onClick={() => setConnecting({ platform })}
                   >
-                    {pendingConnect === addTarget ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <Plus />
-                    )}
+                    <Plus />
                     Add another
                   </Button>
                 )}
@@ -107,14 +107,9 @@ export function SocialAccounts() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={pendingConnect === addTarget}
-                    onClick={() => startConnect(platform)}
+                    onClick={() => setConnecting({ platform })}
                   >
-                    {pendingConnect === addTarget ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <Plug />
-                    )}
+                    <Plug />
                     Connect
                   </Button>
                 </div>
@@ -124,9 +119,15 @@ export function SocialAccounts() {
                     <SocialAccountRow
                       key={account.id}
                       account={account}
-                      onReconnect={() => startConnect(platform, account.id)}
-                      reconnectDisabled={pendingConnect === `account:${account.id}`}
-                      reconnecting={pendingConnect === `account:${account.id}`}
+                      onReconnect={() =>
+                        setConnecting({
+                          platform,
+                          accountId: account.id,
+                          route: account.verification_method === "code" ? "code" : undefined,
+                        })
+                      }
+                      onUpgrade={() => upgrade(account)}
+                      upgrading={upgrading === account.id}
                       onDisconnect={() =>
                         disconnect.mutate(account.id, {
                           onSuccess: () =>
@@ -143,6 +144,8 @@ export function SocialAccounts() {
           );
         })}
       </div>
+
+      <ConnectAccountSheet target={connecting} onClose={() => setConnecting(null)} />
     </QueryState>
   );
 }
@@ -157,20 +160,21 @@ function accountLabel(account: SocialAccount): string {
 function SocialAccountRow({
   account,
   onReconnect,
-  reconnectDisabled,
-  reconnecting,
+  onUpgrade,
+  upgrading,
   onDisconnect,
   disconnecting,
 }: {
   account: SocialAccount;
   onReconnect: () => void;
-  reconnectDisabled: boolean;
-  reconnecting: boolean;
+  onUpgrade: () => void;
+  upgrading: boolean;
   onDisconnect: () => void;
   disconnecting: boolean;
 }) {
   const [confirming, setConfirming] = React.useState(false);
   const connected = !account.needs_reconnect;
+  const byCode = account.verification_method === "code";
   const connectedAt = account.last_connected_at ?? account.connected_at;
 
   React.useEffect(() => {
@@ -185,10 +189,16 @@ function SocialAccountRow({
         <div className="flex items-center gap-2">
           <p className="truncate font-medium">{accountLabel(account)}</p>
           {connected && <Badge variant="success">Connected</Badge>}
+          {connected && byCode && (
+            <Badge variant="secondary">
+              <KeyRound />
+              Verified by code
+            </Badge>
+          )}
           {account.needs_reconnect && (
             <Badge variant="warning">
               <TriangleAlert />
-              Reconnect
+              {byCode ? "Re-verify" : "Reconnect"}
             </Badge>
           )}
         </div>
@@ -205,14 +215,15 @@ function SocialAccountRow({
 
       <div className="flex shrink-0 items-center gap-1">
         {account.needs_reconnect && (
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={reconnectDisabled}
-            onClick={onReconnect}
-          >
-            {reconnecting ? <Loader2 className="animate-spin" /> : <Plug />}
-            Reconnect
+          <Button variant="outline" size="sm" onClick={onReconnect}>
+            <Plug />
+            {byCode ? "Re-verify" : "Reconnect"}
+          </Button>
+        )}
+        {connected && byCode && (
+          <Button variant="ghost" size="sm" disabled={upgrading} onClick={onUpgrade}>
+            {upgrading && <Loader2 className="animate-spin" />}
+            Sign in instead
           </Button>
         )}
         {confirming ? (
