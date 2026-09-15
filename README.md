@@ -52,7 +52,7 @@ In local dev the two apps share `localhost` and cookies ignore port, so both of
 those would *appear* to work — right up until the API moves to its own host.
 They are deliberately not built on.
 
-If `COOKIE_DOMAIN` is ever set to a shared parent (`.cliptech.com`), SSR
+If `COOKIE_DOMAIN` is ever set to a shared parent (`.cliptech.io`), SSR
 prefetch becomes possible and the admin's two-fetcher `ApiFetcher` pattern can
 be retrofitted additively.
 
