@@ -40,7 +40,7 @@ export function PushPermissionPrompt() {
   if (!pushConfigured || permission !== "default" || dismissed) return null;
 
   return (
-    <div className="gap-inline p-card mb-block flex items-start rounded-xl border border-primary/30 bg-primary/5">
+    <div className="gap-inline p-card mt-4 mb-block flex items-start rounded-xl border border-primary/30 bg-primary/5">
       <div className="p-tight mt-0.5 shrink-0 rounded-full bg-primary/10">
         <Bell className="size-4 text-primary" />
       </div>

@@ -348,9 +348,10 @@ function CodeStep({
   return (
     <div className="flex flex-col gap-4">
       <ol className="space-y-1 text-sm text-muted-foreground">
-        <li>1. Copy the code below.</li>
-        <li>2. Paste it anywhere in your {name} bio and save.</li>
-        <li>3. Come back and check it.</li>
+        <li>1. Make sure your {name} account is public.</li>
+        <li>2. Copy the code below.</li>
+        <li>3. Paste it anywhere in your {name} bio and save.</li>
+        <li>4. Come back and check it.</li>
       </ol>
 
       <div className="flex items-center gap-2 rounded-xl border p-3">
