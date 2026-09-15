@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
  * viewport, so a full-height hero sits partly under the browser chrome until
  * the user scrolls. `svh` is the smallest, which is the one that always fits.
  */
-export function Hero() {
+export function Hero({ ctaHref }: { ctaHref: string }) {
   return (
     <main className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-6 text-center">
       {/* Decorative only, and behind everything: a soft brand wash so the
@@ -32,7 +32,7 @@ export function Hero() {
         size="xl"
         className="mt-10 rounded-full px-8"
         nativeButton={false}
-        render={<Link href="/dashboard" />}
+        render={<Link href={ctaHref} />}
       >
         Get Started
         <ArrowRight />
