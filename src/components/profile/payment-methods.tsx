@@ -26,6 +26,7 @@ import {
 } from "@/schemas/payout-method";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -43,6 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { errorMessage, QueryState } from "@/components/shared/query-state";
@@ -172,6 +174,7 @@ function AddPayoutMethodForm({ onDone }: { onDone: () => void }) {
     defaultValues: payoutMethodFormDefaults,
   });
   const add = useAddPayoutMethodMutation();
+  const [disclaimerOpen, setDisclaimerOpen] = React.useState(false);
 
   const selected = form.watch("method");
 
@@ -267,6 +270,37 @@ function AddPayoutMethodForm({ onDone }: { onDone: () => void }) {
           )}
         />
 
+        {selected === "crypto" && (
+          <FormField
+            control={form.control}
+            name="agreedToPaymentDisclaimer"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-start gap-2">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === true)}
+                    />
+                  </FormControl>
+                  <FormLabel className="text-sm font-normal text-nowrap text-muted-foreground">
+                    I agree to the{" "}
+                    <button
+                      type="button"
+                      className="underline underline-offset-2 hover:text-foreground"
+                      onClick={() => setDisclaimerOpen(true)}
+                    >
+                      Payment Disclaimer
+                    </button>
+                    .
+                  </FormLabel>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
         <div className="flex items-center gap-2">
           <Button type="submit" size="lg" disabled={add.isPending}>
             {add.isPending && <Loader2 className="animate-spin" />}
@@ -286,6 +320,43 @@ function AddPayoutMethodForm({ onDone }: { onDone: () => void }) {
           </Button>
         </div>
       </form>
+
+      <PaymentDisclaimerSheet open={disclaimerOpen} onOpenChange={setDisclaimerOpen} />
     </Form>
+  );
+}
+
+function PaymentDisclaimerSheet({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="max-h-[80svh]">
+        <SheetHeader>
+          <SheetTitle>Payment Disclaimer</SheetTitle>
+        </SheetHeader>
+        <div className="space-y-3 overflow-y-auto px-4 pb-6 text-sm text-muted-foreground">
+          <p>
+            Please verify your payment details carefully before submitting. You are
+            responsible for providing the correct wallet address, payment ID, email, and
+            network.
+          </p>
+          <p>
+            For crypto payments, the wallet must support the exact token and network
+            specified (for example, USDT on Ethereum/ERC-20). Using an incorrect address
+            or network may result in permanent loss of funds.
+          </p>
+          <p>
+            Once a payment is sent, it may not be reversible. We are not responsible for
+            funds lost, delayed, or inaccessible due to incorrect payment details provided
+            by you.
+          </p>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

@@ -30,7 +30,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { data: user, error } = useMeQuery();
+  const { data: user, error, isPending } = useMeQuery();
 
   const unauthorised = error instanceof ApiError && error.status === 401;
 
@@ -41,13 +41,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     router.replace(`/login?next=${encodeURIComponent(next)}`);
   }, [unauthorised, router, pathname, searchParams]);
 
-  // Only the redirect blocks. While the session query is still in flight the
-  // children render, because holding them back would put every
-  // server-rendered route behind a client fetch and undo the point of
-  // rendering them on the server - the campaigns screens already proved the
-  // session by fetching their data with it. The client-fetched tabs show
-  // their own shaped skeletons through QueryState in the meantime.
-  if (unauthorised) {
+  if (isPending || unauthorised) {
     return <SessionSkeleton />;
   }
 

@@ -50,15 +50,21 @@ export function payoutMethodContent(method: PayoutMethod): string {
   return "";
 }
 
-export const payoutMethodFormSchema = z.object({
-  method: z.enum(PAYOUT_METHOD_TYPES, { message: "Choose how you want to be paid" }),
-  content: z
-    .string()
-    .trim()
-    .min(1, "Tell us where to send the money")
-    .max(500, "That's too long to be a payout address"),
-  label: z.string().trim().max(100, "Label must be at most 100 characters"),
-});
+export const payoutMethodFormSchema = z
+  .object({
+    method: z.enum(PAYOUT_METHOD_TYPES, { message: "Choose how you want to be paid" }),
+    content: z
+      .string()
+      .trim()
+      .min(1, "Tell us where to send the money")
+      .max(500, "That's too long to be a payout address"),
+    label: z.string().trim().max(100, "Label must be at most 100 characters"),
+    agreedToPaymentDisclaimer: z.boolean(),
+  })
+  .refine((values) => values.method !== "crypto" || values.agreedToPaymentDisclaimer, {
+    message: "You need to agree to the payment disclaimer",
+    path: ["agreedToPaymentDisclaimer"],
+  });
 
 export type PayoutMethodFormValues = z.infer<typeof payoutMethodFormSchema>;
 
@@ -66,4 +72,5 @@ export const payoutMethodFormDefaults: PayoutMethodFormValues = {
   method: "paypal",
   content: "",
   label: "",
+  agreedToPaymentDisclaimer: false,
 };
