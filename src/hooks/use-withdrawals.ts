@@ -4,6 +4,7 @@ import {
   keepPreviousData,
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 
@@ -11,12 +12,26 @@ import { apiFetch } from "@/lib/api-client";
 import { DEFAULT_PAGE_SIZE } from "@/lib/list-params";
 import { dashboardKeys } from "@/hooks/use-dashboard";
 import { transactionsKeys } from "@/hooks/use-transactions";
-import type { WithdrawalFormValues, WithdrawalResponse, WithdrawalsResponse } from "@/schemas/withdrawal";
+import type {
+  WithdrawalFormValues,
+  WithdrawalLimits,
+  WithdrawalResponse,
+  WithdrawalsResponse,
+} from "@/schemas/withdrawal";
 
 export const withdrawalsKeys = {
   all: ["withdrawals"] as const,
   lists: () => [...withdrawalsKeys.all, "list"] as const,
+  limits: () => [...withdrawalsKeys.all, "limits"] as const,
 };
+
+export function useWithdrawalLimitsQuery() {
+  return useQuery({
+    queryKey: withdrawalsKeys.limits(),
+    queryFn: () => apiFetch<WithdrawalLimits>("/withdrawals/limits"),
+    select: (response: WithdrawalLimits) => response.minimum_withdrawal,
+  });
+}
 
 export function useWithdrawalsInfiniteQuery() {
   return useInfiniteQuery({

@@ -4,7 +4,6 @@ import { Info } from "lucide-react";
 
 import { formatCurrency } from "@/lib/format";
 import type { CreatorDashboard } from "@/schemas/dashboard";
-import { MINIMUM_WITHDRAWAL } from "@/schemas/withdrawal";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,15 +18,24 @@ const HINTS = {
 
 export function BalanceCards({
   dashboard,
+  minimumWithdrawal,
   hasOpenWithdrawal,
   onWithdraw,
 }: {
   dashboard: CreatorDashboard;
+  minimumWithdrawal: number | undefined;
   hasOpenWithdrawal: boolean;
   onWithdraw: () => void;
 }) {
   const canWithdraw =
-    dashboard.available_balance >= MINIMUM_WITHDRAWAL && !hasOpenWithdrawal;
+    minimumWithdrawal !== undefined &&
+    dashboard.available_balance > 0 &&
+    dashboard.available_balance >= minimumWithdrawal &&
+    !hasOpenWithdrawal;
+  const belowMinimum =
+    minimumWithdrawal !== undefined &&
+    dashboard.available_balance > 0 &&
+    dashboard.available_balance < minimumWithdrawal;
 
   return (
     <div className="gap-inline grid sm:grid-cols-3">
@@ -35,6 +43,11 @@ export function BalanceCards({
         label="Available balance"
         hint={HINTS.available}
         value={dashboard.available_balance}
+        note={
+          belowMinimum
+            ? `You can withdraw once you reach ${formatCurrency(minimumWithdrawal)}.`
+            : undefined
+        }
         action={
           <Button
             variant="secondary"
@@ -65,11 +78,13 @@ function BalanceCard({
   label,
   hint,
   value,
+  note,
   action,
 }: {
   label: string;
   hint: string;
   value: number;
+  note?: string;
   action?: React.ReactNode;
 }) {
   return (
@@ -93,6 +108,7 @@ function BalanceCard({
         </p>
         {action}
       </div>
+      {note && <p className="text-xs text-muted-foreground">{note}</p>}
     </div>
   );
 }

@@ -15,7 +15,6 @@ import {
   type PayoutMethod,
 } from "@/schemas/payout-method";
 import {
-  MINIMUM_WITHDRAWAL,
   withdrawalFormSchema,
   type WithdrawalFormValues,
 } from "@/schemas/withdrawal";
@@ -61,10 +60,12 @@ export function WithdrawSheet({
   open,
   onOpenChange,
   available,
+  minimum,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   available: number;
+  minimum: number;
 }) {
   const methods = usePayoutMethodsQuery();
   const {
@@ -75,8 +76,13 @@ export function WithdrawSheet({
   } = useCreateWithdrawalMutation();
   const [adding, setAdding] = React.useState(false);
 
+  const schema = React.useMemo(
+    () => withdrawalFormSchema(minimum, available),
+    [minimum, available]
+  );
+
   const form = useForm<WithdrawalFormValues>({
-    resolver: zodResolver(withdrawalFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: { amount: 0, payout_method_id: "" },
   });
 
@@ -181,7 +187,7 @@ export function WithdrawSheet({
                         type="number"
                         inputMode="decimal"
                         step="0.01"
-                        min={MINIMUM_WITHDRAWAL}
+                        min={minimum}
                         max={available}
                         className="h-11"
                         value={Number.isFinite(field.value) ? field.value : ""}
@@ -192,7 +198,7 @@ export function WithdrawSheet({
                       />
                     </FormControl>
                     <FormDescription>
-                      Minimum {formatCurrency(MINIMUM_WITHDRAWAL)}, up to your available
+                      Minimum {formatCurrency(minimum)}, up to your available
                       balance of {formatCurrency(available)}.
                     </FormDescription>
                     <FormMessage />

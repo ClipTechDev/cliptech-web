@@ -3,7 +3,10 @@
 import * as React from "react";
 
 import { useDashboardQuery } from "@/hooks/use-dashboard";
-import { useWithdrawalsInfiniteQuery } from "@/hooks/use-withdrawals";
+import {
+  useWithdrawalLimitsQuery,
+  useWithdrawalsInfiniteQuery,
+} from "@/hooks/use-withdrawals";
 import { isOpenWithdrawal } from "@/schemas/withdrawal";
 import { QueryState } from "@/components/shared/query-state";
 import { AvailableEarnings } from "@/components/earnings/available-earnings";
@@ -20,6 +23,7 @@ export function EarningsScreen() {
   const view = useEarningsView();
   const dashboard = useDashboardQuery();
   const withdrawals = useWithdrawalsInfiniteQuery();
+  const limits = useWithdrawalLimitsQuery();
   const [withdrawOpen, setWithdrawOpen] = React.useState(false);
 
   const requests = withdrawals.data?.pages.flatMap((page) => page.withdrawals) ?? [];
@@ -37,6 +41,7 @@ export function EarningsScreen() {
           <>
             <BalanceCards
               dashboard={dashboard.data}
+              minimumWithdrawal={limits.data}
               hasOpenWithdrawal={hasOpenWithdrawal}
               onWithdraw={() => setWithdrawOpen(true)}
             />
@@ -44,6 +49,7 @@ export function EarningsScreen() {
               open={withdrawOpen}
               onOpenChange={setWithdrawOpen}
               available={dashboard.data.available_balance}
+              minimum={limits.data ?? 0}
             />
           </>
         )}

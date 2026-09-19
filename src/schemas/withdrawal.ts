@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { formatCurrency } from "@/lib/format";
 import type { PaginatedResponse } from "@/schemas/common";
 
 /**
@@ -59,19 +60,24 @@ export function isOpenWithdrawal(withdrawal: Withdrawal): boolean {
   return OPEN_WITHDRAWAL_STATUSES.includes(withdrawal.status);
 }
 
-/** Mirrors `minimumWithdrawal` in internal/features/withdrawal/service.go. */
-export const MINIMUM_WITHDRAWAL = 1;
+export type WithdrawalLimits = {
+  success: boolean;
+  minimum_withdrawal: number;
+};
 
-export const withdrawalFormSchema = z.object({
-  amount: z
-    .number({ message: "Enter an amount" })
-    .positive("Amount must be greater than 0")
-    .min(MINIMUM_WITHDRAWAL, `The minimum withdrawal is $${MINIMUM_WITHDRAWAL}`)
-    .refine(
-      (value) => Number.isInteger(Number((value * 100).toFixed(6))),
-      "Amount supports at most 2 decimal places"
-    ),
-  payout_method_id: z.string().min(1, "Choose where to send the money"),
-});
+export function withdrawalFormSchema(minimum: number, available: number) {
+  return z.object({
+    amount: z
+      .number({ message: "Enter an amount" })
+      .positive("Amount must be greater than 0")
+      .min(minimum, `The minimum withdrawal is ${formatCurrency(minimum)}`)
+      .max(available, `You only have ${formatCurrency(available)} available`)
+      .refine(
+        (value) => Number.isInteger(Number((value * 100).toFixed(6))),
+        "Amount supports at most 2 decimal places"
+      ),
+    payout_method_id: z.string().min(1, "Choose where to send the money"),
+  });
+}
 
-export type WithdrawalFormValues = z.infer<typeof withdrawalFormSchema>;
+export type WithdrawalFormValues = z.infer<ReturnType<typeof withdrawalFormSchema>>;
