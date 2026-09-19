@@ -19,7 +19,7 @@ export const LEGAL = {
   entity: "ClipTech",
 
   /** Reachable mailbox. Named in the terms as the contact of record. */
-  contactEmail: "support@cliptech.app",
+  contactEmail: "support@cliptech.io",
 
   /** Jurisdiction whose law governs the terms and where disputes are heard. */
   governingLaw: "India",

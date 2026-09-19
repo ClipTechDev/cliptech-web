@@ -10,8 +10,8 @@
  * deployment fact rather than a code one: the API stamps it with
  * COOKIE_DOMAIN (shared/cookie.go). In dev both apps are on `localhost` and
  * cookies ignore port, so it already works. In production COOKIE_DOMAIN has to
- * be the parent domain of both hosts - `.cliptech.app` for `app.cliptech.app`
- * and `api.cliptech.app` - or the cookie never reaches this server and every
+ * be the parent domain of both hosts - `.cliptech.io` for `app.cliptech.io`
+ * and `api.cliptech.io` - or the cookie never reaches this server and every
  * render below 401s into the sign-in redirect.
  *
  * Error shapes are deliberately identical to the client's: the same ApiError
