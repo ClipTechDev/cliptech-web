@@ -3,7 +3,7 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { formatCurrency } from "@/lib/format";
@@ -44,10 +44,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AddPayoutMethodForm } from "@/components/profile/payment-methods";
 import { errorMessage } from "@/components/shared/query-state";
 
 function methodTitle(method: PayoutMethod) {
   return method.label || payoutMethodLabel(method.method);
+}
+
+function methodSummary(method: PayoutMethod) {
+  const content = payoutMethodContent(method);
+  return content ? `${methodTitle(method)} · ${content}` : methodTitle(method);
 }
 
 export function WithdrawSheet({
@@ -66,16 +73,21 @@ export function WithdrawSheet({
     isPending,
     error: submitError,
   } = useCreateWithdrawalMutation();
+  const [adding, setAdding] = React.useState(false);
 
   const form = useForm<WithdrawalFormValues>({
     resolver: zodResolver(withdrawalFormSchema),
     defaultValues: { amount: 0, payout_method_id: "" },
   });
 
-  const defaultMethodId = React.useMemo(() => {
-    const list = methods.data ?? [];
-    return (list.find((method) => method.is_default) ?? list[0])?.id ?? "";
-  }, [methods.data]);
+  const list = React.useMemo(() => methods.data ?? [], [methods.data]);
+  const hasMethods = list.length > 0;
+  const showAddForm = adding || (!methods.isPending && !hasMethods);
+
+  const defaultMethodId = React.useMemo(
+    () => (list.find((method) => method.is_default) ?? list[0])?.id ?? "",
+    [list]
+  );
 
   const wasOpen = React.useRef(false);
 
@@ -86,6 +98,7 @@ export function WithdrawSheet({
         payout_method_id: defaultMethodId,
       });
       resetWithdrawal();
+      setAdding(false);
     }
     wasOpen.current = open;
   }, [open, available, defaultMethodId, form, resetWithdrawal]);
@@ -108,25 +121,36 @@ export function WithdrawSheet({
     });
   }
 
-  const hasMethods = (methods.data?.length ?? 0) > 0;
+  function onMethodSaved(method: PayoutMethod) {
+    form.setValue("payout_method_id", method.id, { shouldValidate: true });
+  }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="max-h-[92svh] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Withdraw earnings</SheetTitle>
+          <SheetTitle>{showAddForm ? "Add a payout method" : "Withdraw earnings"}</SheetTitle>
           <SheetDescription>
-            {formatCurrency(available)} available. Payouts are reviewed by hand before
-            the money is sent.
+            {showAddForm
+              ? hasMethods
+                ? "Save another place for us to send your money."
+                : "Before you can withdraw, tell us where to send your money. You only need to do this once."
+              : `${formatCurrency(available)} available. Payouts are reviewed by hand before the money is sent.`}
           </SheetDescription>
         </SheetHeader>
 
-        {!hasMethods ? (
+        {methods.isPending ? (
+          <div className="space-y-3 px-4 pb-6">
+            <Skeleton className="h-11 w-full rounded-lg" />
+            <Skeleton className="h-11 w-full rounded-lg" />
+          </div>
+        ) : showAddForm ? (
           <div className="px-4 pb-6">
-            <p className="text-sm text-muted-foreground">
-              You need a payout method saved before you can withdraw. Add one from your
-              profile, then come back here.
-            </p>
+            <AddPayoutMethodForm
+              onSaved={onMethodSaved}
+              onDone={() => setAdding(false)}
+              onCancel={hasMethods ? () => setAdding(false) : () => onOpenChange(false)}
+            />
           </div>
         ) : (
           <Form {...form}>
@@ -136,7 +160,22 @@ export function WithdrawSheet({
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Amount</FormLabel>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-auto px-2 py-0.5 text-xs"
+                        onClick={() =>
+                          form.setValue("amount", Number(available.toFixed(2)), {
+                            shouldValidate: true,
+                          })
+                        }
+                      >
+                        Max
+                      </Button>
+                    </div>
                     <FormControl>
                       <Input
                         type="number"
@@ -170,17 +209,32 @@ export function WithdrawSheet({
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger className="h-11 w-full">
-                          <SelectValue placeholder="Choose a payout method" />
+                          <SelectValue placeholder="Choose a payout method">
+                            {(value) => {
+                              const selected = list.find((method) => method.id === value);
+                              return selected ? methodSummary(selected) : "Choose a payout method";
+                            }}
+                          </SelectValue>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {(methods.data ?? []).map((method) => (
+                        {list.map((method) => (
                           <SelectItem key={method.id} value={method.id}>
-                            {methodTitle(method)} · {payoutMethodContent(method)}
+                            {methodSummary(method)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="-ml-2 w-fit"
+                      onClick={() => setAdding(true)}
+                    >
+                      <Plus />
+                      Add a new payout method
+                    </Button>
                     <FormMessage />
                   </FormItem>
                 )}

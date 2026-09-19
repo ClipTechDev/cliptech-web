@@ -9,12 +9,21 @@ import {
   useWithdrawalsInfiniteQuery,
 } from "@/hooks/use-withdrawals";
 import { payoutMethodLabel } from "@/schemas/payout-method";
+import type { Withdrawal } from "@/schemas/withdrawal";
 import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/components/shared/query-state";
 import { LedgerTable, type LedgerRow } from "@/components/earnings/ledger-table";
 import { WithdrawalStatusBadge } from "@/components/earnings/withdrawal-status-badge";
 
 const COLUMNS = ["Date", "Description", "Payment Method", "Status", "Amount"];
+
+function withdrawalNote(withdrawal: Withdrawal): string | null {
+  if (withdrawal.failure_reason) return `Reason: ${withdrawal.failure_reason}`;
+  if (withdrawal.status === "paid" && withdrawal.provider_reference) {
+    return `Reference: ${withdrawal.provider_reference}`;
+  }
+  return null;
+}
 
 /**
  * Owns its query like the other two tabs rather than being handed rows. The
@@ -48,6 +57,7 @@ export function PaidOutList() {
     const date = formatDate(withdrawal.completed_at ?? withdrawal.requested_at);
     const method = payoutMethodLabel(withdrawal.method);
     const cancelling = cancel.isPending && cancel.variables === withdrawal.id;
+    const note = withdrawalNote(withdrawal);
 
     const description =
       withdrawal.status === "pending" ? (
@@ -72,7 +82,12 @@ export function PaidOutList() {
       id: withdrawal.id,
       cells: [
         date,
-        description,
+        <div key="description" className="min-w-0 space-y-0.5">
+          <div>{description}</div>
+          {note && (
+            <p className="text-xs break-words text-muted-foreground">{note}</p>
+          )}
+        </div>,
         method,
         <WithdrawalStatusBadge key="status" status={withdrawal.status} />,
         amount,
@@ -85,6 +100,7 @@ export function PaidOutList() {
             <span>·</span>
             <span>{date}</span>
             <WithdrawalStatusBadge status={withdrawal.status} />
+            {note && <span className="basis-full break-words">{note}</span>}
           </>
         ),
         amount,

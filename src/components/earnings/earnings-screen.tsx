@@ -3,7 +3,6 @@
 import * as React from "react";
 
 import { useDashboardQuery } from "@/hooks/use-dashboard";
-import { usePayoutMethodsQuery } from "@/hooks/use-payout-methods";
 import { useWithdrawalsInfiniteQuery } from "@/hooks/use-withdrawals";
 import { isOpenWithdrawal } from "@/schemas/withdrawal";
 import { QueryState } from "@/components/shared/query-state";
@@ -20,7 +19,6 @@ import { WithdrawSheet } from "@/components/earnings/withdraw-sheet";
 export function EarningsScreen() {
   const view = useEarningsView();
   const dashboard = useDashboardQuery();
-  const methods = usePayoutMethodsQuery();
   const withdrawals = useWithdrawalsInfiniteQuery();
   const [withdrawOpen, setWithdrawOpen] = React.useState(false);
 
@@ -39,7 +37,6 @@ export function EarningsScreen() {
           <>
             <BalanceCards
               dashboard={dashboard.data}
-              hasPayoutMethod={(methods.data?.length ?? 0) > 0}
               hasOpenWithdrawal={hasOpenWithdrawal}
               onWithdraw={() => setWithdrawOpen(true)}
             />

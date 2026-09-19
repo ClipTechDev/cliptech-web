@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { Info } from "lucide-react";
 
 import { formatCurrency } from "@/lib/format";
 import type { CreatorDashboard } from "@/schemas/dashboard";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { MINIMUM_WITHDRAWAL } from "@/schemas/withdrawal";
+import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -19,17 +19,15 @@ const HINTS = {
 
 export function BalanceCards({
   dashboard,
-  hasPayoutMethod,
   hasOpenWithdrawal,
   onWithdraw,
 }: {
   dashboard: CreatorDashboard;
-  hasPayoutMethod: boolean;
   hasOpenWithdrawal: boolean;
   onWithdraw: () => void;
 }) {
   const canWithdraw =
-    dashboard.available_balance > 0 && hasPayoutMethod && !hasOpenWithdrawal;
+    dashboard.available_balance >= MINIMUM_WITHDRAWAL && !hasOpenWithdrawal;
 
   return (
     <div className="gap-inline grid sm:grid-cols-3">
@@ -38,24 +36,15 @@ export function BalanceCards({
         hint={HINTS.available}
         value={dashboard.available_balance}
         action={
-          hasPayoutMethod ? (
-            <Button
-              variant="secondary"
-              size="sm"
-              className="rounded-full"
-              disabled={!canWithdraw}
-              onClick={onWithdraw}
-            >
-              {hasOpenWithdrawal ? "In progress" : "Withdraw"}
-            </Button>
-          ) : (
-            <Link
-              href="/dashboard/profile#payout-methods"
-              className={buttonVariants({ variant: "secondary", size: "sm" }) + " rounded-full"}
-            >
-              Add account
-            </Link>
-          )
+          <Button
+            variant="secondary"
+            size="sm"
+            className="rounded-full"
+            disabled={!canWithdraw}
+            onClick={onWithdraw}
+          >
+            {hasOpenWithdrawal ? "In progress" : "Withdraw"}
+          </Button>
         }
       />
       <BalanceCard

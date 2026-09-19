@@ -168,7 +168,15 @@ function PayoutMethodRow({
   );
 }
 
-function AddPayoutMethodForm({ onDone }: { onDone: () => void }) {
+export function AddPayoutMethodForm({
+  onDone,
+  onSaved,
+  onCancel,
+}: {
+  onDone: () => void;
+  onSaved?: (method: PayoutMethod) => void;
+  onCancel?: () => void;
+}) {
   const form = useForm<PayoutMethodFormValues>({
     resolver: zodResolver(payoutMethodFormSchema),
     defaultValues: payoutMethodFormDefaults,
@@ -180,9 +188,10 @@ function AddPayoutMethodForm({ onDone }: { onDone: () => void }) {
 
   function onSubmit(values: PayoutMethodFormValues) {
     add.mutate(values, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         toast.success("Payment method saved");
         form.reset(payoutMethodFormDefaults);
+        onSaved?.(response.method);
         onDone();
       },
       onError: (error) => toast.error(errorMessage(error)),
@@ -313,7 +322,7 @@ function AddPayoutMethodForm({ onDone }: { onDone: () => void }) {
             disabled={add.isPending}
             onClick={() => {
               form.reset(payoutMethodFormDefaults);
-              onDone();
+              (onCancel ?? onDone)();
             }}
           >
             Cancel
