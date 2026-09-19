@@ -15,6 +15,7 @@ import {
 import {
   PAYOUT_METHOD_PLACEHOLDERS,
   PAYOUT_METHOD_TYPES,
+  payoutMethodConfirmLabel,
   payoutMethodContent,
   payoutMethodContentLabel,
   payoutMethodFormDefaults,
@@ -215,6 +216,7 @@ export function AddPayoutMethodForm({
                 onValueChange={(value) => {
                   field.onChange(value);
                   form.setValue("content", "");
+                  form.setValue("confirm_content", "");
                 }}
               >
                 <FormControl>
@@ -245,8 +247,10 @@ export function AddPayoutMethodForm({
               <FormLabel>{payoutMethodContentLabel(selected)}</FormLabel>
               <FormControl>
                 <Input
+                  type={selected === "paypal" ? "email" : "text"}
                   autoCapitalize="none"
                   autoCorrect="off"
+                  autoComplete="off"
                   spellCheck={false}
                   className="h-11"
                   placeholder={PAYOUT_METHOD_PLACEHOLDERS[selected as PayoutMethodType] ?? ""}
@@ -254,9 +258,32 @@ export function AddPayoutMethodForm({
                 />
               </FormControl>
               <FormDescription>
-                Payouts are sent by hand, so double-check this - we send exactly what
-                you type here.
+                {selected === "paypal"
+                  ? "The email of the PayPal account you want paid - not necessarily the one you log in to ClipTech with."
+                  : "Payouts are sent by hand, so double-check this - we send exactly what you type here."}
               </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="confirm_content"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{payoutMethodConfirmLabel(selected)}</FormLabel>
+              <FormControl>
+                <Input
+                  type={selected === "paypal" ? "email" : "text"}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="h-11"
+                  {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

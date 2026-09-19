@@ -28,6 +28,10 @@ export function payoutMethodContentLabel(method: string): string {
   return PAYOUT_METHOD_CONTENT_LABELS[method as PayoutMethodType] ?? "Details";
 }
 
+export function payoutMethodConfirmLabel(method: string): string {
+  return `Confirm ${payoutMethodContentLabel(method).toLowerCase()}`;
+}
+
 export type PayoutMethod = {
   id: string;
   label: string | null;
@@ -58,9 +62,27 @@ export const payoutMethodFormSchema = z
       .trim()
       .min(1, "Tell us where to send the money")
       .max(500, "That's too long to be a payout address"),
+    confirm_content: z.string().trim(),
     label: z.string().trim().max(100, "Label must be at most 100 characters"),
     agreedToPaymentDisclaimer: z.boolean(),
   })
+  .refine(
+    (values) => values.method !== "paypal" || z.email().safeParse(values.content).success,
+    {
+      message: "Enter the email address of your PayPal account",
+      path: ["content"],
+    }
+  )
+  .refine(
+    (values) =>
+      values.method === "paypal"
+        ? values.confirm_content.toLowerCase() === values.content.toLowerCase()
+        : values.confirm_content === values.content,
+    {
+      message: "This doesn't match what you entered above",
+      path: ["confirm_content"],
+    }
+  )
   .refine((values) => values.method !== "crypto" || values.agreedToPaymentDisclaimer, {
     message: "You need to agree to the payment disclaimer",
     path: ["agreedToPaymentDisclaimer"],
@@ -71,6 +93,7 @@ export type PayoutMethodFormValues = z.infer<typeof payoutMethodFormSchema>;
 export const payoutMethodFormDefaults: PayoutMethodFormValues = {
   method: "paypal",
   content: "",
+  confirm_content: "",
   label: "",
   agreedToPaymentDisclaimer: false,
 };
