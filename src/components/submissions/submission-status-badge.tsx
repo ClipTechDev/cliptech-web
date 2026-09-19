@@ -6,6 +6,7 @@ const VARIANTS: Record<
   SubmissionDisplayStatus,
   "success" | "warning" | "destructive" | "secondary"
 > = {
+  pending: "secondary",
   approved: "success",
   tracking: "success",
   completed: "secondary",
@@ -17,6 +18,7 @@ const VARIANTS: Record<
 
 const LABELS: Partial<Record<SubmissionDisplayStatus, string>> = {
   needs_fixing: "Needs fixing",
+  pending: "Awaiting review",
 };
 
 export function SubmissionStatusBadge({ status }: { status: SubmissionDisplayStatus }) {

@@ -63,7 +63,8 @@ export function SubmitClipForm({
         <div className="space-y-tight">
           <p className="font-medium">Clip submitted</p>
           <p className="text-sm text-muted-foreground">
-            We&apos;ve started tracking its views.
+            Our team will review it shortly. Views count from now, and it starts
+            earning once approved.
           </p>
         </div>
         <Link

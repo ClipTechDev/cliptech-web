@@ -28,11 +28,16 @@ export function RecheckButton({
       onClick={() =>
         recheck.mutate(submissionId, {
           onSuccess: (response) => {
-            toast[response.submission.status === "approved" ? "success" : "error"](
-              response.submission.status === "approved"
-                ? "Looks good — tracking has started"
-                : "Still not tracking. Check the issues below."
-            );
+            if (response.submission.status === "approved") {
+              toast.success("Looks good — tracking has started");
+            } else if (
+              response.submission.status === "pending" &&
+              response.submission.issues.length === 0
+            ) {
+              toast.success("Looks good — it's now awaiting review");
+            } else {
+              toast.error("Still not tracking. Check the issues below.");
+            }
             if (refreshOnSuccess) router.refresh();
           },
           onError: (error) => toast.error(errorMessage(error)),

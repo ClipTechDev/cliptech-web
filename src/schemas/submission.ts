@@ -8,6 +8,7 @@ import type { PaginatedResponse, Platform } from "@/schemas/common";
 
 /** Mirrors submission.Status in internal/features/submission/model.go. */
 export const SUBMISSION_STATUSES = [
+  "pending",
   "approved",
   "rejected",
   "invalidated",
@@ -107,7 +108,10 @@ export type SubmissionDisplayStatus =
 export function submissionDisplayStatus(
   submission: Submission
 ): SubmissionDisplayStatus {
-  if (submission.status === "rejected" && submission.issues.length > 0) {
+  if (
+    (submission.status === "rejected" || submission.status === "pending") &&
+    submission.issues.length > 0
+  ) {
     return "needs_fixing";
   }
   if (submission.status !== "approved") return submission.status;

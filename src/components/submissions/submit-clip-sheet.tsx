@@ -96,7 +96,8 @@ export function SubmitClipSheet() {
           return;
         }
         toast.success("Clip submitted", {
-          description: "We've started tracking its views.",
+          description:
+            "Our team will review it shortly. Views count from now, and it starts earning once approved.",
         });
         closeSubmit();
       },
