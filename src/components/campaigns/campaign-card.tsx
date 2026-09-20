@@ -10,6 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Campaign } from "@/schemas/campaign";
 import { CampaignStatusBadge } from "@/components/campaigns/campaign-status-badge";
+import { CampaignMembershipBadge } from "@/components/campaigns/campaign-membership-badge";
 
 /**
  * The unit of the campaigns tab. Answers, in order: what is it, what does it
@@ -47,7 +48,10 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
       <div className="space-y-inline p-card">
         <div className="gap-inline flex items-start justify-between">
           <h3 className="font-heading line-clamp-2 font-semibold">{campaign.name}</h3>
-          <CampaignStatusBadge campaign={campaign} />
+          <div className="gap-tight flex shrink-0 flex-wrap justify-end">
+            <CampaignMembershipBadge campaignId={campaign.id} />
+            <CampaignStatusBadge campaign={campaign} />
+          </div>
         </div>
 
         <div className="gap-x-card gap-y-tight flex flex-wrap items-center text-sm">
