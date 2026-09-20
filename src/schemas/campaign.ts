@@ -1,4 +1,5 @@
 import type { PaginatedResponse, Platform } from "@/schemas/common";
+import type { JoinMethod, RuleView } from "@/schemas/membership";
 
 /**
  * Mirrors campaign.PublicResponse in internal/features/campaign/dto.go - the
@@ -65,6 +66,10 @@ export type Campaign = {
 
   ended_at: string | null;
   created_at: string;
+
+  join_method: JoinMethod;
+  eligibility_match: "all" | "any";
+  eligibility_rules: RuleView[];
 };
 
 export type CampaignsListResponse = PaginatedResponse<"campaigns", Campaign>;
