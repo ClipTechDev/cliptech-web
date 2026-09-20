@@ -89,6 +89,11 @@ export function platformLabel(platform: string): string {
   return platformLabels[platform] ?? humanise(platform);
 }
 
+export function formatHandle(username: string): string {
+  const trimmed = username.trim();
+  return trimmed.startsWith("@") ? trimmed : `@${trimmed}`;
+}
+
 /**
  * "in 3 days" / "2 hours ago", for campaign deadlines and tracking times.
  *

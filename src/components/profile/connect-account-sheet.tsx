@@ -5,7 +5,7 @@ import { Check, Copy, KeyRound, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { ApiError } from "@/lib/api-client";
-import { platformLabel } from "@/lib/format";
+import { formatHandle, platformLabel } from "@/lib/format";
 import {
   useCancelClaimMutation,
   useConnectSocialMutation,
@@ -142,7 +142,7 @@ function ConnectFlow({
       onSuccess: (response) => {
         toast.success(`${name} connected`, {
           description: response.account.platform_username
-            ? `Verified @${response.account.platform_username}`
+            ? `Verified ${formatHandle(response.account.platform_username)}`
             : undefined,
         });
         onClose();
@@ -363,7 +363,7 @@ function CodeStep({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Verifying @{claim.handle}. You can remove the code once it&apos;s verified.
+        Verifying {formatHandle(claim.handle)}. You can remove the code once it&apos;s verified.
       </p>
 
       <div className="flex gap-2">

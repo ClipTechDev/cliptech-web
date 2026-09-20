@@ -4,7 +4,7 @@ import * as React from "react";
 import { KeyRound, Loader2, Plug, Plus, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
-import { formatRelative, platformLabel } from "@/lib/format";
+import { formatHandle, formatRelative, platformLabel } from "@/lib/format";
 import {
   useConnectSocialMutation,
   useDisconnectSocialMutation,
@@ -152,9 +152,7 @@ export function SocialAccounts() {
 
 function accountLabel(account: SocialAccount): string {
   if (!account.platform_username) return platformLabel(account.platform);
-  return account.platform_username.startsWith("@")
-    ? account.platform_username
-    : `@${account.platform_username}`;
+  return formatHandle(account.platform_username);
 }
 
 function SocialAccountRow({
