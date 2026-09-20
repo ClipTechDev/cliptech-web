@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { formatCurrency, platformLabel } from "@/lib/format";
-import { useJoinableCampaignsQuery } from "@/hooks/use-campaigns";
+import { useJoinedCampaignsQuery } from "@/hooks/use-campaign-membership";
 import { useSocialAccountsQuery } from "@/hooks/use-social-accounts";
 import { useCreateSubmissionMutation } from "@/hooks/use-submissions";
 import { useUiStore } from "@/stores/ui-store";
@@ -51,7 +51,7 @@ export function SubmitClipSheet() {
   const [formError, setFormError] = React.useState<string | null>(null);
   const [issues, setIssues] = React.useState<SubmissionIssue[]>([]);
 
-  const campaigns = useJoinableCampaignsQuery(submitOpen);
+  const campaigns = useJoinedCampaignsQuery(submitOpen);
   const accounts = useSocialAccountsQuery();
   const createSubmission = useCreateSubmissionMutation();
 
@@ -149,7 +149,8 @@ export function SubmitClipSheet() {
                   )}
                   {!campaigns.isPending && (campaigns.data?.length ?? 0) === 0 && (
                     <FormDescription>
-                      No campaigns are open right now.
+                      You haven&apos;t joined any open campaigns yet. Open a campaign and
+                      join it with one of your pages first.
                     </FormDescription>
                   )}
                   <FormMessage />
