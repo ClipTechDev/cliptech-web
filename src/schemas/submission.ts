@@ -142,6 +142,7 @@ export const SUBMISSION_ISSUE_CODES = [
   "not_post_owner",
   "missing_hashtags",
   "views_unavailable",
+  "page_not_joined",
 ] as const;
 
 export type SubmissionIssueCode = (typeof SUBMISSION_ISSUE_CODES)[number];
@@ -178,12 +179,19 @@ export const SUBMISSION_ISSUE_COPY: Record<SubmissionIssueCode, IssueCopy> = {
     title: "That post doesn't report a view count",
     fix: "Only videos and reels report views — photos and carousels never do. Submit a video instead.",
   },
+  page_not_joined: {
+    title: "This post is from a page that hasn't joined the campaign",
+    fix: "Join the campaign with this page first, or submit a post from a page that has joined.",
+  },
 };
 
 export function issueCopy(issue: SubmissionIssue): IssueCopy {
   const copy = SUBMISSION_ISSUE_COPY[issue.code as SubmissionIssueCode];
   if (!copy) {
     return { title: humaniseIssueCode(issue.code), fix: "Fix the post, then re-check." };
+  }
+  if (issue.code === "page_not_joined" && issue.detail) {
+    return { ...copy, fix: `Post it from ${issue.detail}, or join the campaign with this page first.` };
   }
   if (issue.code === "missing_hashtags" && issue.detail) {
     return { ...copy, fix: `Add ${issue.detail} to the post's caption, then re-check.` };
