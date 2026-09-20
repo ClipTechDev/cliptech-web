@@ -16,7 +16,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { CampaignStatusBadge } from "@/components/campaigns/campaign-status-badge";
 import { CampaignHashtags } from "@/components/campaigns/campaign-hashtags";
 import { CampaignTracking } from "@/components/campaigns/campaign-tracking";
-import { SubmitClipForm } from "@/components/campaigns/submit-clip-form";
+import { CampaignJoin } from "@/components/campaigns/campaign-join";
 
 /**
  * One campaign, in full.
@@ -181,10 +181,7 @@ export function CampaignDetail({
         </section>
       )}
 
-      <section className="space-y-inline">
-        <h2 className="font-heading font-semibold">Submit a clip</h2>
-        <SubmitClipForm campaign={campaign} connectedPlatforms={connectedPlatforms} />
-      </section>
+      <CampaignJoin campaign={campaign} connectedPlatforms={connectedPlatforms} />
     </article>
   );
 }
