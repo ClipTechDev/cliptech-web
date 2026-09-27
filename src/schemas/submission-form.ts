@@ -7,12 +7,12 @@ import { z } from "zod";
  * the cases it would certainly reject.
  */
 const POST_URL_PATTERNS: RegExp[] = [
-  /instagram\.com\/(p|reel|reels|tv)\/[\w-]+/i,
-  /(twitter|x)\.com\/[\w.]+\/status\/\d+/i,
-  /tiktok\.com\/@[\w.-]+\/(video|photo)\/\d+/i,
+  /instagram\.com\/(?:[\w.]+\/)?(p|reel|reels|tv)\/[\w-]+/i,
+  /(twitter|x)\.com\/(?:[\w.]+\/)?status(es)?\/\d+/i,
+  /tiktok\.com\/(?:@[\w.-]+\/)?(video|photo)\/\d+/i,
   /youtube\.com\/watch\?.*\bv=[\w-]{11}/i,
   /youtu\.be\/[\w-]{11}/i,
-  /youtube\.com\/(shorts|embed|live)\/[\w-]{11}/i,
+  /youtube\.com\/(?:[\w@.-]+\/)?(shorts|embed|live|v)\/[\w-]{11}/i,
 ];
 
 /** Shortened TikTok links carry no post id, so the API rejects them outright. */
