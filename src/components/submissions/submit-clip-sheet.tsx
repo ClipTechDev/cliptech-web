@@ -4,9 +4,11 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { formatCurrency, platformLabel } from "@/lib/format";
+import { DUPLICATE_POST_CODE, apiErrorDetails } from "@/lib/api-client";
 import { useJoinedCampaignsQuery } from "@/hooks/use-campaign-membership";
 import { useSocialAccountsQuery } from "@/hooks/use-social-accounts";
 import { useCreateSubmissionMutation } from "@/hooks/use-submissions";
@@ -49,6 +51,7 @@ export function SubmitClipSheet() {
   const submitCampaignId = useUiStore((state) => state.submitCampaignId);
   const closeSubmit = useUiStore((state) => state.closeSubmit);
   const [formError, setFormError] = React.useState<string | null>(null);
+  const [duplicateId, setDuplicateId] = React.useState<string | null>(null);
   const [issues, setIssues] = React.useState<SubmissionIssue[]>([]);
 
   const campaigns = useJoinedCampaignsQuery(submitOpen);
@@ -64,6 +67,7 @@ export function SubmitClipSheet() {
     if (submitOpen) {
       form.reset({ campaign_id: submitCampaignId ?? "", post_url: "" });
       setFormError(null);
+      setDuplicateId(null);
       setIssues([]);
     }
   }, [submitOpen, submitCampaignId, form]);
@@ -88,6 +92,7 @@ export function SubmitClipSheet() {
 
   function onSubmit(values: SubmissionFormValues) {
     setFormError(null);
+    setDuplicateId(null);
     setIssues([]);
     createSubmission.mutate(values, {
       onSuccess: (response) => {
@@ -101,7 +106,13 @@ export function SubmitClipSheet() {
         });
         closeSubmit();
       },
-      onError: (error) => setFormError(errorMessage(error)),
+      onError: (error) => {
+        setFormError(errorMessage(error));
+        const details = apiErrorDetails(error);
+        if (details.code === DUPLICATE_POST_CODE && details.submissionId) {
+          setDuplicateId(details.submissionId);
+        }
+      },
     });
   }
 
@@ -197,7 +208,20 @@ export function SubmitClipSheet() {
               </p>
             )}
 
-            {formError && <p className="text-sm text-destructive">{formError}</p>}
+            {formError && (
+              <div className="space-y-tight">
+                <p className="text-sm text-destructive">{formError}</p>
+                {duplicateId && (
+                  <Link
+                    href={`/dashboard/submissions/${duplicateId}`}
+                    onClick={closeSubmit}
+                    className="text-sm font-medium underline underline-offset-4"
+                  >
+                    View that clip
+                  </Link>
+                )}
+              </div>
+            )}
 
             <SubmissionIssues issues={issues} heading="Saved, but not tracking yet" />
 

@@ -17,7 +17,10 @@ import { Label } from "@/components/ui/label";
 import { RecheckButton } from "@/components/submissions/recheck-button";
 import { SubmissionIssues } from "@/components/submissions/submission-issues";
 import { submitClipAction } from "@/app/(app)/dashboard/campaigns/[id]/actions";
-import { initialSubmitClipState } from "@/app/(app)/dashboard/campaigns/[id]/submit-clip-state";
+import {
+  initialSubmitClipState,
+  type SubmitClipState,
+} from "@/app/(app)/dashboard/campaigns/[id]/submit-clip-state";
 
 export function SubmitClipForm({
   campaign,
@@ -32,6 +35,7 @@ export function SubmitClipForm({
   );
 
   const [postUrl, setPostUrl] = React.useState("");
+  const [editedAfter, setEditedAfter] = React.useState<SubmitClipState | null>(null);
   const queryClient = useQueryClient();
 
   React.useEffect(() => {
@@ -98,6 +102,7 @@ export function SubmitClipForm({
   const postUrlPlaceholder = placeholderForPlatforms(campaign.allowed_platforms);
 
   const blocked = notConnected || notAllowed;
+  const duplicate = state.status === "duplicate" && editedAfter !== state ? state : null;
 
   return (
     <form action={formAction} className="space-y-inline">
@@ -116,8 +121,13 @@ export function SubmitClipForm({
           placeholder={postUrlPlaceholder}
           className="h-11"
           value={postUrl}
-          onChange={(event) => setPostUrl(event.target.value)}
-          aria-invalid={state.status === "error" && state.field === "post_url"}
+          onChange={(event) => {
+            setPostUrl(event.target.value);
+            setEditedAfter(state);
+          }}
+          aria-invalid={
+            (state.status === "error" && state.field === "post_url") || duplicate !== null
+          }
           aria-describedby="post_url_hint"
         />
         <p id="post_url_hint" className="text-sm text-muted-foreground">
@@ -145,6 +155,20 @@ export function SubmitClipForm({
       )}
 
       {state.status === "error" && <FormMessage>{state.message}</FormMessage>}
+
+      {duplicate && (
+        <div className="space-y-tight">
+          <FormMessage>{duplicate.message}</FormMessage>
+          {duplicate.submissionId && (
+            <Link
+              href={`/dashboard/submissions/${duplicate.submissionId}`}
+              className="text-sm font-medium underline underline-offset-4"
+            >
+              View that clip
+            </Link>
+          )}
+        </div>
+      )}
 
       <Button type="submit" size="xl" className="w-full" disabled={isPending || blocked}>
         {isPending && <Loader2 className="animate-spin" />}

@@ -8,7 +8,13 @@ type Entry = { key: string; title: string; fix: string };
 function entries(issues: SubmissionIssue[], invalidReason?: string | null): Entry[] {
   const list = issues.map((issue) => ({ key: issue.code, ...issueCopy(issue) }));
 
-  if (invalidReason) {
+  if (invalidReason === "duplicate_submission") {
+    list.push({
+      key: invalidReason,
+      title: "Stopped earning: this post is already entered in another campaign",
+      fix: "A post can only earn in one campaign. Submit a different post here.",
+    });
+  } else if (invalidReason) {
     list.push({
       key: invalidReason,
       title: `Stopped earning: ${humanise(invalidReason).toLowerCase()}`,

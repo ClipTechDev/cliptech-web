@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { ApiError, NetworkError } from "@/lib/api-client";
+import {
+  ApiError,
+  DUPLICATE_POST_CODE,
+  NetworkError,
+  apiErrorDetails,
+} from "@/lib/api-client";
 import { serverFetch } from "@/lib/api-server";
 import { submissionFormSchema } from "@/schemas/submission-form";
 import type { SubmissionResponse } from "@/schemas/submission";
@@ -43,6 +48,15 @@ export async function submitClipAction(
       redirect(
         `/login?next=${encodeURIComponent(`/dashboard/campaigns/${parsed.data.campaign_id}`)}`
       );
+    }
+
+    const details = apiErrorDetails(error);
+    if (error instanceof ApiError && details.code === DUPLICATE_POST_CODE) {
+      return {
+        status: "duplicate",
+        message: error.message,
+        submissionId: details.submissionId,
+      };
     }
 
     if (error instanceof ApiError || error instanceof NetworkError) {

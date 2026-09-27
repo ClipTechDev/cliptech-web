@@ -31,6 +31,20 @@ export class ApiError extends Error {
   }
 }
 
+export const DUPLICATE_POST_CODE = "duplicate_post";
+
+export function apiErrorDetails(error: unknown): { code?: string; submissionId?: string } {
+  if (!(error instanceof ApiError)) return {};
+  const payload = error.payload;
+  if (!payload || typeof payload !== "object") return {};
+
+  const { code, submission_id } = payload as { code?: unknown; submission_id?: unknown };
+  return {
+    code: typeof code === "string" ? code : undefined,
+    submissionId: typeof submission_id === "string" ? submission_id : undefined,
+  };
+}
+
 /** Raised when the request never reached the API at all. */
 export class NetworkError extends Error {
   constructor(message: string) {
