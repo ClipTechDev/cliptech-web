@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isCountryCode } from "@/lib/countries";
+
 /**
  * Mirrors user.Response and user.UpdateRequest in
  * internal/features/user/dto.go. Fields the Go side declares as pointers
@@ -42,8 +44,8 @@ export const profileFormSchema = z.object({
     .string()
     .trim()
     .toUpperCase()
-    .refine((value) => value === "" || /^[A-Za-z]{2}$/.test(value), {
-      message: "Use a two-letter country code, e.g. US",
+    .refine((value) => value === "" || isCountryCode(value), {
+      message: "Use a valid two-letter country code, e.g. US, GB or IN",
     }),
 });
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
