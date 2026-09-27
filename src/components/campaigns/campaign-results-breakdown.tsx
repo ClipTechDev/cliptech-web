@@ -9,7 +9,7 @@ export function CampaignResultsBreakdown({ result }: { result: CampaignResult })
         <StatCard
           label="Credited views"
           value={formatCompactNumber(result.my_payable_views)}
-          hint="cleared a payout threshold"
+          hint="counted when earnings were released"
         />
         <StatCard
           label="Credited to you"

@@ -80,7 +80,9 @@ export function SubmissionDetail({
           <StatCard
             label="Pending"
             value={formatCurrency(submission.pending_amount)}
-            hint={submission.pending_amount === 0 ? "all credited" : "not yet credited"}
+            hint={
+              submission.pending_amount === 0 ? "all credited" : "released after the campaign ends"
+            }
           />
         </div>
 

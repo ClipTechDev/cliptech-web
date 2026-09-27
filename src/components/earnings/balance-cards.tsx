@@ -12,7 +12,7 @@ const HINTS = {
   available:
     "Money in your ClipTech balance, ready to withdraw to your payout method. We'll let you know once a withdrawal has been sent.",
   pending:
-    "Earnings move from pending to available when the campaign credits them, after final view tallying and fraud checks.",
+    "Earnings stay pending until the campaign has ended and we release them. They then move to your available balance, ready to withdraw.",
   lifetime: "The total you've earned on ClipTech, all-time.",
 };
 
