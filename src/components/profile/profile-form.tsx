@@ -108,7 +108,7 @@ export function ProfileForm({ user }: { user: CreatorUser }) {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>Two letters, e.g. US.</FormDescription>
+                <FormDescription>Optional. Two letters, e.g. US. Leave blank to remove it.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
