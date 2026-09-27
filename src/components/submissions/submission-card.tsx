@@ -60,7 +60,7 @@ export const SubmissionCard = React.memo(function SubmissionCard({
         />
       </div>
 
-      {submission.starting_views > 0 && (
+      {submission.starting_views !== null && submission.starting_views > 0 && (
         <p className="text-xs text-muted-foreground">
           Had {formatCompactNumber(submission.starting_views)} views when you
           submitted — only views after that count.

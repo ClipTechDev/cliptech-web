@@ -46,7 +46,7 @@ export type Submission = {
   post_url: string;
   platform_post_id: string;
 
-  starting_views: number;
+  starting_views: number | null;
   raw_views: number;
   eligible_views: number;
   payable_views: number;

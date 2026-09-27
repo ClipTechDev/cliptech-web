@@ -88,7 +88,9 @@ export function SubmissionDetail({
 
         <dl className="space-y-tight p-card rounded-xl border text-sm">
           <DetailRow label="Views when submitted">
-            {formatCompactNumber(submission.starting_views)}
+            {submission.starting_views === null
+              ? "Not checked"
+              : formatCompactNumber(submission.starting_views)}
           </DetailRow>
           <DetailRow label="Views now">
             {formatCompactNumber(submission.raw_views)}
@@ -113,7 +115,7 @@ export function SubmissionDetail({
           </DetailRow>
         </dl>
 
-        {submission.starting_views > 0 && (
+        {submission.starting_views !== null && submission.starting_views > 0 && (
           <p className="text-sm text-muted-foreground">
             This post already had {formatCompactNumber(submission.starting_views)} views
             when you submitted it. Only the views it gained afterwards count towards
