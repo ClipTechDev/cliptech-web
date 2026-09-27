@@ -152,7 +152,7 @@ export type SubmissionIssue = {
   detail?: string;
 };
 
-type IssueCopy = { title: string; fix: string };
+type IssueCopy = { title: string; fix: string; reason?: string };
 
 export const SUBMISSION_ISSUE_COPY: Record<SubmissionIssueCode, IssueCopy> = {
   account_disconnected: {
@@ -196,7 +196,16 @@ export function issueCopy(issue: SubmissionIssue): IssueCopy {
   if (issue.code === "missing_hashtags" && issue.detail) {
     return { ...copy, fix: `Add ${issue.detail} to the post's caption, then re-check.` };
   }
+  if (issue.detail) {
+    return { ...copy, reason: sentence(issue.detail) };
+  }
   return copy;
+}
+
+function sentence(text: string): string {
+  const trimmed = text.trim();
+  const capitalised = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+  return /[.!?]$/.test(capitalised) ? capitalised : `${capitalised}.`;
 }
 
 function humaniseIssueCode(code: string): string {

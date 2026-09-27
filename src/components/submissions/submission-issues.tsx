@@ -3,7 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import { humanise } from "@/lib/format";
 import { issueCopy, type SubmissionIssue } from "@/schemas/submission";
 
-type Entry = { key: string; title: string; fix: string };
+type Entry = { key: string; title: string; fix: string; reason?: string };
 
 function entries(issues: SubmissionIssue[], invalidReason?: string | null): Entry[] {
   const list = issues.map((issue) => ({ key: issue.code, ...issueCopy(issue) }));
@@ -50,6 +50,7 @@ export function SubmissionIssues({
         {list.map((entry) => (
           <li key={entry.key} className="space-y-0.5">
             <p className="text-sm font-medium">{entry.title}</p>
+            {entry.reason && <p className="text-sm">{entry.reason}</p>}
             <p className="text-sm text-muted-foreground">{entry.fix}</p>
           </li>
         ))}
