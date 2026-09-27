@@ -14,7 +14,6 @@ import type { Platform } from "@/schemas/common";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RecheckButton } from "@/components/submissions/recheck-button";
 import { SubmissionIssues } from "@/components/submissions/submission-issues";
 import { submitClipAction } from "@/app/(app)/dashboard/campaigns/[id]/actions";
 import {
@@ -39,26 +38,10 @@ export function SubmitClipForm({
   const queryClient = useQueryClient();
 
   React.useEffect(() => {
-    if (state.status !== "success" && state.status !== "issues") return;
+    if (state.status !== "success") return;
     queryClient.invalidateQueries({ queryKey: submissionsKeys.lists() });
     queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
   }, [state, queryClient]);
-
-  if (state.status === "issues") {
-    return (
-      <section className="space-y-inline">
-        <SubmissionIssues issues={state.issues} heading="Saved, but not tracking yet">
-          <RecheckButton submissionId={state.submissionId} refreshOnSuccess />
-        </SubmissionIssues>
-        <Link
-          href={`/dashboard/submissions/${state.submissionId}`}
-          className={buttonVariants({ variant: "ghost", size: "lg" })}
-        >
-          View this clip
-        </Link>
-      </section>
-    );
-  }
 
   if (state.status === "success") {
     return (
@@ -103,6 +86,7 @@ export function SubmitClipForm({
 
   const blocked = notConnected || notAllowed;
   const duplicate = state.status === "duplicate" && editedAfter !== state ? state : null;
+  const failedChecks = state.status === "issues" && editedAfter !== state ? state : null;
 
   return (
     <form action={formAction} className="space-y-inline">
@@ -126,7 +110,9 @@ export function SubmitClipForm({
             setEditedAfter(state);
           }}
           aria-invalid={
-            (state.status === "error" && state.field === "post_url") || duplicate !== null
+            (state.status === "error" && state.field === "post_url") ||
+            duplicate !== null ||
+            failedChecks !== null
           }
           aria-describedby="post_url_hint"
         />
@@ -155,6 +141,14 @@ export function SubmitClipForm({
       )}
 
       {state.status === "error" && <FormMessage>{state.message}</FormMessage>}
+
+      {failedChecks && (
+        <SubmissionIssues
+          issues={failedChecks.issues}
+          next="resubmit"
+          heading="Not submitted - fix this on the post, then submit it again"
+        />
+      )}
 
       {duplicate && (
         <div className="space-y-tight">

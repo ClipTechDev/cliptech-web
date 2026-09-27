@@ -154,47 +154,65 @@ export type SubmissionIssue = {
 
 type IssueCopy = { title: string; fix: string; reason?: string };
 
-export const SUBMISSION_ISSUE_COPY: Record<SubmissionIssueCode, IssueCopy> = {
+export type IssueNextStep = "recheck" | "resubmit";
+
+const THEN: Record<IssueNextStep, string> = {
+  recheck: "then re-check",
+  resubmit: "then submit it again",
+};
+
+const RETRY: Record<IssueNextStep, string> = {
+  recheck: "Try re-checking in a little while.",
+  resubmit: "Try submitting again in a little while.",
+};
+
+type IssueCopyTemplate = { title: string; fix: (next: IssueNextStep) => string };
+
+export const SUBMISSION_ISSUE_COPY: Record<SubmissionIssueCode, IssueCopyTemplate> = {
   account_disconnected: {
     title: "That platform isn't connected",
-    fix: "Connect the account you posted from on the Profile tab, then re-check.",
+    fix: (next) => `Connect the account you posted from on the Profile tab, ${THEN[next]}.`,
   },
   tracking_unavailable: {
     title: "We can't track that platform right now",
-    fix: "This is on our side. Try re-checking in a little while.",
+    fix: (next) => `This is on our side. ${RETRY[next]}`,
   },
   post_unreadable: {
     title: "We couldn't read that post",
-    fix: "Make sure it's public and still online, then re-check.",
+    fix: (next) => `Make sure it's public and still online, ${THEN[next]}.`,
   },
   not_post_owner: {
     title: "That post isn't on your connected account",
-    fix: "Submit a post from an account you've connected, or connect the account that published it.",
+    fix: () =>
+      "Submit a post from an account you've connected, or connect the account that published it.",
   },
   missing_hashtags: {
     title: "The caption is missing required hashtags",
-    fix: "Add them to the post's caption, then re-check.",
+    fix: (next) => `Add them to the post's caption, ${THEN[next]}.`,
   },
   views_unavailable: {
     title: "That post doesn't report a view count",
-    fix: "Only videos and reels report views — photos and carousels never do. Submit a video instead.",
+    fix: () =>
+      "Only videos and reels report views — photos and carousels never do. Submit a video instead.",
   },
   page_not_joined: {
     title: "This post is from a page that hasn't joined the campaign",
-    fix: "Join the campaign with this page first, or submit a post from a page that has joined.",
+    fix: () =>
+      "Join the campaign with this page first, or submit a post from a page that has joined.",
   },
 };
 
-export function issueCopy(issue: SubmissionIssue): IssueCopy {
-  const copy = SUBMISSION_ISSUE_COPY[issue.code as SubmissionIssueCode];
-  if (!copy) {
-    return { title: humaniseIssueCode(issue.code), fix: "Fix the post, then re-check." };
+export function issueCopy(issue: SubmissionIssue, next: IssueNextStep = "recheck"): IssueCopy {
+  const template = SUBMISSION_ISSUE_COPY[issue.code as SubmissionIssueCode];
+  if (!template) {
+    return { title: humaniseIssueCode(issue.code), fix: `Fix the post, ${THEN[next]}.` };
   }
+  const copy: IssueCopy = { title: template.title, fix: template.fix(next) };
   if (issue.code === "page_not_joined" && issue.detail) {
     return { ...copy, fix: `Post it from ${issue.detail}, or join the campaign with this page first.` };
   }
   if (issue.code === "missing_hashtags" && issue.detail) {
-    return { ...copy, fix: `Add ${issue.detail} to the post's caption, then re-check.` };
+    return { ...copy, fix: `Add ${issue.detail} to the post's caption, ${THEN[next]}.` };
   }
   if (issue.detail) {
     return { ...copy, reason: sentence(issue.detail) };

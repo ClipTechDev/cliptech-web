@@ -8,7 +8,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 import { formatCurrency, platformLabel } from "@/lib/format";
-import { DUPLICATE_POST_CODE, apiErrorDetails } from "@/lib/api-client";
+import { CHECKS_FAILED_CODE, DUPLICATE_POST_CODE, apiErrorDetails } from "@/lib/api-client";
 import { useJoinedCampaignsQuery } from "@/hooks/use-campaign-membership";
 import { useSocialAccountsQuery } from "@/hooks/use-social-accounts";
 import { useCreateSubmissionMutation } from "@/hooks/use-submissions";
@@ -95,11 +95,7 @@ export function SubmitClipSheet() {
     setDuplicateId(null);
     setIssues([]);
     createSubmission.mutate(values, {
-      onSuccess: (response) => {
-        if (response.submission.issues.length > 0) {
-          setIssues(response.submission.issues);
-          return;
-        }
+      onSuccess: () => {
         toast.success("Clip submitted", {
           description:
             "Our team will review it shortly. Views count from now, and it starts earning once approved.",
@@ -107,8 +103,12 @@ export function SubmitClipSheet() {
         closeSubmit();
       },
       onError: (error) => {
-        setFormError(errorMessage(error));
         const details = apiErrorDetails(error);
+        if (details.code === CHECKS_FAILED_CODE && details.issues) {
+          setIssues(details.issues);
+          return;
+        }
+        setFormError(errorMessage(error));
         if (details.code === DUPLICATE_POST_CODE && details.submissionId) {
           setDuplicateId(details.submissionId);
         }
@@ -223,7 +223,11 @@ export function SubmitClipSheet() {
               </div>
             )}
 
-            <SubmissionIssues issues={issues} heading="Saved, but not tracking yet" />
+            <SubmissionIssues
+              issues={issues}
+              next="resubmit"
+              heading="Not submitted - fix this on the post, then submit it again"
+            />
 
             <Button
               type="submit"

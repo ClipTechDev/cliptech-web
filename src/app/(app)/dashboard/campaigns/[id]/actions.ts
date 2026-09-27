@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import {
   ApiError,
+  CHECKS_FAILED_CODE,
   DUPLICATE_POST_CODE,
   NetworkError,
   apiErrorDetails,
@@ -51,6 +52,9 @@ export async function submitClipAction(
     }
 
     const details = apiErrorDetails(error);
+    if (error instanceof ApiError && details.code === CHECKS_FAILED_CODE && details.issues) {
+      return { status: "issues", message: error.message, issues: details.issues };
+    }
     if (error instanceof ApiError && details.code === DUPLICATE_POST_CODE) {
       return {
         status: "duplicate",
@@ -68,14 +72,6 @@ export async function submitClipAction(
 
   revalidatePath(`/dashboard/campaigns/${parsed.data.campaign_id}`);
   revalidatePath("/dashboard/campaigns");
-
-  if (created.submission.issues.length > 0) {
-    return {
-      status: "issues",
-      submissionId: created.submission.id,
-      issues: created.submission.issues,
-    };
-  }
 
   return { status: "success", submissionId: created.submission.id };
 }

@@ -32,16 +32,33 @@ export class ApiError extends Error {
 }
 
 export const DUPLICATE_POST_CODE = "duplicate_post";
+export const CHECKS_FAILED_CODE = "checks_failed";
 
-export function apiErrorDetails(error: unknown): { code?: string; submissionId?: string } {
+export type ApiErrorIssue = { code: string; detail?: string };
+
+export function apiErrorDetails(error: unknown): {
+  code?: string;
+  submissionId?: string;
+  issues?: ApiErrorIssue[];
+} {
   if (!(error instanceof ApiError)) return {};
   const payload = error.payload;
   if (!payload || typeof payload !== "object") return {};
 
-  const { code, submission_id } = payload as { code?: unknown; submission_id?: unknown };
+  const { code, submission_id, issues } = payload as {
+    code?: unknown;
+    submission_id?: unknown;
+    issues?: unknown;
+  };
   return {
     code: typeof code === "string" ? code : undefined,
     submissionId: typeof submission_id === "string" ? submission_id : undefined,
+    issues: Array.isArray(issues)
+      ? issues.filter(
+          (issue): issue is ApiErrorIssue =>
+            !!issue && typeof issue === "object" && typeof issue.code === "string"
+        )
+      : undefined,
   };
 }
 
