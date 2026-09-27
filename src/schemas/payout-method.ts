@@ -7,17 +7,20 @@ export type PayoutMethodType = (typeof PAYOUT_METHOD_TYPES)[number];
 
 export const PAYOUT_METHOD_LABELS: Record<PayoutMethodType, string> = {
   paypal: "PayPal",
-  crypto: "Crypto wallet",
+  crypto: "USDT (Ethereum / ERC-20)",
 };
+
+export const CRYPTO_PAYOUT_CURRENCY = "USDT";
+export const CRYPTO_PAYOUT_NETWORK = "Ethereum (ERC-20)";
 
 export const PAYOUT_METHOD_CONTENT_LABELS: Record<PayoutMethodType, string> = {
   paypal: "PayPal email",
-  crypto: "Wallet address",
+  crypto: "USDT wallet address (Ethereum / ERC-20)",
 };
 
 export const PAYOUT_METHOD_PLACEHOLDERS: Record<PayoutMethodType, string> = {
   paypal: "you@example.com",
-  crypto: "0x… or your wallet address",
+  crypto: "0x followed by 40 characters",
 };
 
 export function payoutMethodLabel(method: string): string {
@@ -28,8 +31,13 @@ export function payoutMethodContentLabel(method: string): string {
   return PAYOUT_METHOD_CONTENT_LABELS[method as PayoutMethodType] ?? "Details";
 }
 
+const PAYOUT_METHOD_CONFIRM_LABELS: Record<PayoutMethodType, string> = {
+  paypal: "Confirm PayPal email",
+  crypto: "Confirm wallet address",
+};
+
 export function payoutMethodConfirmLabel(method: string): string {
-  return `Confirm ${payoutMethodContentLabel(method).toLowerCase()}`;
+  return PAYOUT_METHOD_CONFIRM_LABELS[method as PayoutMethodType] ?? "Confirm details";
 }
 
 export type PayoutMethod = {
@@ -70,6 +78,14 @@ export const payoutMethodFormSchema = z
     (values) => values.method !== "paypal" || z.email().safeParse(values.content).success,
     {
       message: "Enter the email address of your PayPal account",
+      path: ["content"],
+    }
+  )
+  .refine(
+    (values) => values.method !== "crypto" || /^0x[0-9a-fA-F]{40}$/.test(values.content),
+    {
+      message:
+        "Enter a USDT wallet address on the Ethereum network (ERC-20). It starts with 0x and is 42 characters long.",
       path: ["content"],
     }
   )

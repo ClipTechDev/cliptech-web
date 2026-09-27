@@ -14,6 +14,8 @@ import {
 } from "@/hooks/use-payout-methods";
 import {
   PAYOUT_METHOD_PLACEHOLDERS,
+  CRYPTO_PAYOUT_CURRENCY,
+  CRYPTO_PAYOUT_NETWORK,
   PAYOUT_METHOD_TYPES,
   payoutMethodConfirmLabel,
   payoutMethodContent,
@@ -239,6 +241,19 @@ export function AddPayoutMethodForm({
           )}
         />
 
+        {selected === "crypto" && (
+          <div className="space-y-1 rounded-lg border border-warning/40 bg-warning/5 p-3 text-sm">
+            <p className="font-medium">
+              We pay crypto only as {CRYPTO_PAYOUT_CURRENCY} on the {CRYPTO_PAYOUT_NETWORK} network.
+            </p>
+            <p className="text-muted-foreground">
+              Use a wallet address that can receive {CRYPTO_PAYOUT_CURRENCY} on Ethereum. Other
+              networks such as Tron (TRC-20), BNB Chain, Solana or Polygon are not supported, and
+              funds sent to an address on the wrong network may be lost.
+            </p>
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name="content"
@@ -260,7 +275,7 @@ export function AddPayoutMethodForm({
               <FormDescription>
                 {selected === "paypal"
                   ? "The email of the PayPal account you want paid - not necessarily the one you log in to ClipTech with."
-                  : "Payouts are sent by hand, so double-check this - we send exactly what you type here."}
+                  : `Your Ethereum (ERC-20) address for receiving ${CRYPTO_PAYOUT_CURRENCY}. Payouts are sent by hand to exactly what you type here, so double-check it.`}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -382,9 +397,10 @@ function PaymentDisclaimerSheet({
             network.
           </p>
           <p>
-            For crypto payments, the wallet must support the exact token and network
-            specified (for example, USDT on Ethereum/ERC-20). Using an incorrect address
-            or network may result in permanent loss of funds.
+            Crypto payouts are sent only as {CRYPTO_PAYOUT_CURRENCY} on the{" "}
+            {CRYPTO_PAYOUT_NETWORK} network. Your wallet must be able to receive{" "}
+            {CRYPTO_PAYOUT_CURRENCY} on Ethereum. Using an incorrect address or an address
+            on another network may result in permanent loss of funds.
           </p>
           <p>
             Once a payment is sent, it may not be reversible. We are not responsible for
