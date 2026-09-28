@@ -8,7 +8,7 @@ import {
   formatRelative,
   platformLabel,
 } from "@/lib/format";
-import type { Campaign } from "@/schemas/campaign";
+import { mentionEntries, type Campaign } from "@/schemas/campaign";
 import type { CampaignResult } from "@/schemas/campaign-result";
 import type { Platform } from "@/schemas/common";
 import { buttonVariants } from "@/components/ui/button";
@@ -145,6 +145,44 @@ export function CampaignDetail({
           </ul>
           <p className="text-sm text-muted-foreground">
             Include these in your caption for the post to count.
+          </p>
+        </section>
+      )}
+
+      {mentionEntries(campaign).length > 0 && (
+        <section className="space-y-inline">
+          <h2 className="font-heading font-semibold">Required mention</h2>
+          <ul className="gap-tight flex flex-wrap">
+            {mentionEntries(campaign).map(([platform, handle]) => (
+              <li
+                key={platform}
+                className="px-tight rounded-md bg-muted py-1 text-xs text-muted-foreground"
+              >
+                {platformLabel(platform)}: <span className="font-mono">@{handle}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-sm text-muted-foreground">
+            Mention this account in your caption on that platform for the post to count.
+          </p>
+        </section>
+      )}
+
+      {(campaign.caption_phrases ?? []).length > 0 && (
+        <section className="space-y-inline">
+          <h2 className="font-heading font-semibold">Required caption text</h2>
+          <ul className="gap-tight flex flex-wrap">
+            {campaign.caption_phrases.map((phrase) => (
+              <li
+                key={phrase}
+                className="px-tight rounded-md bg-muted py-1 text-xs text-muted-foreground"
+              >
+                &ldquo;{phrase}&rdquo;
+              </li>
+            ))}
+          </ul>
+          <p className="text-sm text-muted-foreground">
+            Your caption must include this text. Capital letters don&apos;t matter.
           </p>
         </section>
       )}

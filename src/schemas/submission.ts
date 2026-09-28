@@ -143,6 +143,8 @@ export const SUBMISSION_ISSUE_CODES = [
   "missing_hashtags",
   "views_unavailable",
   "page_not_joined",
+  "missing_mention",
+  "missing_caption_text",
 ] as const;
 
 export type SubmissionIssueCode = (typeof SUBMISSION_ISSUE_CODES)[number];
@@ -195,6 +197,14 @@ export const SUBMISSION_ISSUE_COPY: Record<SubmissionIssueCode, IssueCopyTemplat
     fix: () =>
       "Only videos and reels report views — photos and carousels never do. Submit a video instead.",
   },
+  missing_mention: {
+    title: "The caption is missing the required mention",
+    fix: (next) => `Mention the campaign's account in the post's caption, ${THEN[next]}.`,
+  },
+  missing_caption_text: {
+    title: "The caption is missing required text",
+    fix: (next) => `Add the campaign's required text to the post's caption, ${THEN[next]}.`,
+  },
   page_not_joined: {
     title: "This post is from a page that hasn't joined the campaign",
     fix: () =>
@@ -210,6 +220,9 @@ export function issueCopy(issue: SubmissionIssue, next: IssueNextStep = "recheck
   const copy: IssueCopy = { title: template.title, fix: template.fix(next) };
   if (issue.code === "page_not_joined" && issue.detail) {
     return { ...copy, fix: `Post it from ${issue.detail}, or join the campaign with this page first.` };
+  }
+  if ((issue.code === "missing_mention" || issue.code === "missing_caption_text") && issue.detail) {
+    return { ...copy, fix: `Add ${issue.detail} to the post's caption, ${THEN[next]}.` };
   }
   if (issue.code === "missing_hashtags" && issue.detail) {
     return { ...copy, fix: `Add ${issue.detail} to the post's caption, ${THEN[next]}.` };

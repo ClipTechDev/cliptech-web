@@ -8,7 +8,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { platformLabel } from "@/lib/format";
 import { dashboardKeys } from "@/hooks/use-dashboard";
 import { submissionsKeys } from "@/hooks/use-submissions";
-import { campaignClosedReason, type Campaign } from "@/schemas/campaign";
+import { campaignClosedReason, mentionEntries, type Campaign } from "@/schemas/campaign";
 import { platformFromPostUrl } from "@/schemas/submission";
 import type { Platform } from "@/schemas/common";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -123,6 +123,12 @@ export function SubmitClipForm({
           . The post must be public and posted by your connected account
           {campaign.hashtags.length > 0 &&
             `, with ${campaign.hashtags.map((tag) => `#${tag}`).join(" ")} in the caption`}
+          {mentionEntries(campaign).length > 0 &&
+            `. Mention ${mentionEntries(campaign)
+              .map(([platform, handle]) => `@${handle} on ${platformLabel(platform)}`)
+              .join(", ")}`}
+          {(campaign.caption_phrases ?? []).length > 0 &&
+            `. Include ${campaign.caption_phrases.map((phrase) => `"${phrase}"`).join(", ")} in the caption`}
           .
         </p>
       </div>

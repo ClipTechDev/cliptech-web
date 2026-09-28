@@ -46,6 +46,8 @@ export type Campaign = {
   allowed_platforms: Platform[];
   /** Tags a post has to carry, stored without the leading '#'. */
   hashtags: string[];
+  mentions: Partial<Record<Platform, string>>;
+  caption_phrases: string[];
 
   cpm: number;
   total_budget: number;
@@ -120,4 +122,11 @@ export function campaignClosedReason(campaign: Campaign): string | null {
   if (new Date(campaign.starts_at) > new Date()) return "Not started yet";
   if (campaign.cutoff_reached) return "Budget spent";
   return "Closed";
+}
+
+export function mentionEntries(campaign: Campaign): [Platform, string][] {
+  return campaign.allowed_platforms.flatMap((platform) => {
+    const handle = campaign.mentions?.[platform];
+    return handle ? [[platform, handle] as [Platform, string]] : [];
+  });
 }
