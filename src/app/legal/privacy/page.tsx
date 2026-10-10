@@ -12,6 +12,7 @@ import {
 export const metadata = {
   title: "Privacy Policy · ClipTech",
   description: `How ${LEGAL.product} collects, uses and shares creator data.`,
+  alternates: { canonical: "/legal/privacy" },
 };
 
 /**

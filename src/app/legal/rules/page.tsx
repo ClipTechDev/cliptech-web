@@ -13,6 +13,7 @@ export const metadata = {
   title: "Campaign Rules · ClipTech",
   description:
     "What a clip has to do to be approved, how views are counted, and what gets a submission rejected.",
+  alternates: { canonical: "/legal/rules" },
 };
 
 /**

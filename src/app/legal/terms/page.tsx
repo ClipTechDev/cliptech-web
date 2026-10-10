@@ -12,6 +12,7 @@ import {
 export const metadata = {
   title: "Terms of Service · ClipTech",
   description: `The agreement between creators and ${LEGAL.product}.`,
+  alternates: { canonical: "/legal/terms" },
 };
 
 export default function TermsOfServicePage() {

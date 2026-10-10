@@ -7,10 +7,12 @@
  * use a "*" origin, so a mismatch fails the preflight outright.
  */
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const env = {
   /** No trailing slash, so `${env.apiUrl}/v1${path}` is always well formed. */
   apiUrl: apiUrl.replace(/\/+$/, ""),
+  siteUrl: siteUrl.replace(/\/+$/, ""),
 };
 
 /**

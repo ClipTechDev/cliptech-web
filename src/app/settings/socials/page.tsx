@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { SocialCallback } from "@/components/profile/social-callback";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 /**
  * Where cliptech-api sends a creator back after an OAuth round trip.

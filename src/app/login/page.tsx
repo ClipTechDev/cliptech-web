@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 
 import { OtpForm } from "@/components/auth/otp-form";
 import { Skeleton } from "@/components/ui/skeleton";
+
+export const metadata: Metadata = {
+  title: "Sign in · ClipTech",
+  robots: { index: false, follow: true },
+};
 
 /**
  * Outside the (app) group, so no bottom nav: there is nowhere to navigate to

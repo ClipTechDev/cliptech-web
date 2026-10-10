@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { AuthGuard } from "@/components/layout/auth-guard";
@@ -5,6 +6,10 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PushMessageListener } from "@/components/notifications/push-message-listener";
 import { PushPermissionPrompt } from "@/components/notifications/push-permission-prompt";
 import { SubmitClipSheetMount } from "@/components/submissions/submit-clip-sheet-mount";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 /**
  * Everything behind a session. AuthGuard reads `?next=` state through

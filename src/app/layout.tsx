@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter, Plus_Jakarta_Sans } from "next/font/google";
 
+import { env } from "@/lib/env";
+import { OPEN_GRAPH, SITE } from "@/lib/site";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -18,8 +20,16 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ClipTech",
-  description: "Get paid for the clips you post.",
+  metadataBase: new URL(env.siteUrl),
+  title: SITE.title,
+  description: SITE.description,
+  applicationName: SITE.name,
+  openGraph: OPEN_GRAPH,
+  twitter: {
+    card: "summary_large_image",
+    title: SITE.title,
+    description: SITE.description,
+  },
 };
 
 export const viewport: Viewport = {

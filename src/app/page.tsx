@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { Calculator } from "@/components/landing/calculator";
 import { CampaignsCta } from "@/components/landing/campaigns-cta";
 import { Faq } from "@/components/landing/faq";
@@ -8,6 +10,12 @@ import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { Updates } from "@/components/landing/updates";
 import { serverFetch } from "@/lib/api-server";
+import { OPEN_GRAPH, landingJsonLd } from "@/lib/site";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: { ...OPEN_GRAPH, url: "/" },
+};
 
 /**
  * The CTA's destination depends on whether the visitor already has a session:
@@ -26,6 +34,12 @@ export default async function LandingPage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(landingJsonLd()).replace(/</g, "\\u003c"),
+        }}
+      />
       <LandingNav {...cta} />
       <main className="overflow-x-clip">
         <Hero {...cta} />
