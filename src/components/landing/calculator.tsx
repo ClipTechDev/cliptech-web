@@ -22,7 +22,7 @@ export function Calculator() {
         <SectionHeading
           label="Do the math"
           title="Views ÷ 1,000 × the campaign rate."
-          description="That is the whole formula. Only views gained after you submit count, and a campaign can set a minimum view count or a cap per post."
+          description="That is the whole formula. Only views gained after you submit count. A campaign can set a minimum view count or a cap per post, and it stops paying once its budget is spent."
         />
 
         <div className="rounded-2xl border bg-card p-block sm:p-8">

@@ -10,7 +10,7 @@ const UPDATES = [
   {
     name: "Your post was approved",
     title: "Submissions",
-    quote: "Your post is now being tracked and earning for the views it gains.",
+    quote: "Your post is now being tracked for the campaign. Earnings update as it gains views.",
   },
   {
     name: "Campaign ending soon",
@@ -20,7 +20,7 @@ const UPDATES = [
   {
     name: "You earned",
     title: "Earnings",
-    quote: "Earnings from a finished campaign have been added to your available balance.",
+    quote: "Earnings from a campaign have been added to your available balance and are ready to withdraw.",
   },
   {
     name: "Withdrawal paid",
@@ -42,7 +42,7 @@ export function Updates() {
           <SectionHeading
             label="Notifications"
             title="You hear about it when it happens."
-            description="Updates land in the app and in your inbox."
+            description="Every update is emailed to you, and sent as a push notification if you turn those on."
           />
         </div>
       </div>

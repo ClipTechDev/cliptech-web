@@ -5,45 +5,8 @@ import { Accordion } from "@base-ui/react/accordion";
 import { Plus } from "lucide-react";
 
 import { LEGAL } from "@/lib/legal";
+import { FAQ_QUESTIONS } from "@/components/landing/faq-data";
 import { SectionHeading } from "@/components/landing/section-heading";
-
-const QUESTIONS = [
-  {
-    question: `How do campaigns work on ${LEGAL.product}?`,
-    answer:
-      "A campaign sets a rate per 1,000 views, a total budget and rules for the content. You join, post a clip that follows the rules on your own account, and submit the link. You earn on the views that post gains.",
-  },
-  {
-    question: "How do I start?",
-    answer:
-      "Sign in with your email and the code we send you. There is no password. Then connect the social accounts you post from and browse the campaigns that are open.",
-  },
-  {
-    question: "Which platforms can I post on?",
-    answer:
-      "Instagram, TikTok, YouTube and X. Each campaign lists which of them it accepts, so check before you post.",
-  },
-  {
-    question: "How do I submit a clip?",
-    answer:
-      "Post it publicly on a connected account, then paste the full post link into the campaign. Each post can be submitted once, to one campaign.",
-  },
-  {
-    question: "When does my post start earning?",
-    answer:
-      "We record the view count at the moment you submit and only growth after that counts. If the campaign sets a minimum view threshold, nothing is payable until the post passes it.",
-  },
-  {
-    question: "How do payouts work?",
-    answer:
-      "Earnings build up while a campaign runs and are released to your available balance once it ends. From there you can request a withdrawal to PayPal or USDT (Ethereum / ERC-20). Withdrawals are reviewed before they are paid.",
-  },
-  {
-    question: "Why was my post rejected?",
-    answer:
-      "Usually missing hashtags, a platform the campaign does not accept, or content that does not follow the campaign's rules. The reason is shown on the submission, and you can fix it and submit a new clip.",
-  },
-];
 
 export function Faq() {
   return (
@@ -67,8 +30,8 @@ export function Faq() {
           </p>
         </div>
 
-        <Accordion.Root className="border-t">
-          {QUESTIONS.map(({ question, answer }) => (
+        <Accordion.Root keepMounted className="border-t">
+          {FAQ_QUESTIONS.map(({ question, answer }) => (
             <Accordion.Item key={question} className="border-b">
               <Accordion.Header>
                 <Accordion.Trigger className="group flex min-h-16 w-full items-center justify-between gap-card py-4 text-left font-heading text-lg font-semibold outline-none focus-visible:text-primary sm:text-xl">

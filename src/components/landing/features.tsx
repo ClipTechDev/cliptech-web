@@ -28,7 +28,7 @@ const FEATURES: { title: string; description: string; wide?: boolean; header: Re
   {
     title: "Clear briefs, up front",
     description:
-      "See the pay rate, total budget, rules, hashtags and accepted platforms before you make anything.",
+      "See the pay rate, budget, rules, accepted platforms and any required hashtags before you make anything.",
     wide: true,
     header: (
       <Fragment>
@@ -45,7 +45,7 @@ const FEATURES: { title: string; description: string; wide?: boolean; header: Re
   },
   {
     title: "Submit with a link",
-    description: "Paste the post URL. We confirm it is from your connected account.",
+    description: "Paste the post URL. We check the post belongs to your connected account.",
     header: (
       <Fragment>
         <div className="truncate rounded-md border bg-background px-3 py-2 font-mono text-xs text-muted-foreground">
@@ -60,7 +60,7 @@ const FEATURES: { title: string; description: string; wide?: boolean; header: Re
   {
     title: "Views tracked for you",
     description:
-      "We re-check your posts through the campaign and keep the view history on each submission.",
+      "We re-check approved posts on a schedule while the campaign runs, and every reading is kept on the submission.",
     header: (
       <Fragment>
         <svg viewBox="0 0 200 60" className="h-16 w-full text-primary" preserveAspectRatio="none">
@@ -78,7 +78,7 @@ const FEATURES: { title: string; description: string; wide?: boolean; header: Re
   {
     title: "Know where every clip stands",
     description:
-      "Each submission shows whether it is in review, approved and earning, or needs a fix, with the reason spelled out.",
+      "Each submission shows whether it is awaiting review, being tracked, rejected or invalidated, with the reason given.",
     wide: true,
     header: (
       <Fragment>
@@ -100,7 +100,7 @@ const FEATURES: { title: string; description: string; wide?: boolean; header: Re
   {
     title: "Earnings you can follow",
     description:
-      "Pending, available and paid out balances, with a record of every credit and withdrawal.",
+      "Pending, available and paid out, each with its own list of what makes up the total.",
     wide: true,
     header: (
       <Fragment>
@@ -112,7 +112,7 @@ const FEATURES: { title: string; description: string; wide?: boolean; header: Re
   },
   {
     title: "Real views only",
-    description: "Bought or botted views are invalidated, so budgets go to genuine reach.",
+    description: "A submission found to have bought or botted views is invalidated and stops earning.",
     header: (
       <Fragment>
         {["Bought views", "Bots", "View exchanges"].map((item) => (

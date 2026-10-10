@@ -7,15 +7,15 @@ const STEPS = [
   },
   {
     title: "Pick a campaign",
-    body: "Every campaign shows its rate per 1,000 views, budget, rules and required hashtags before you join.",
+    body: "Every campaign shows its rate per 1,000 views, budget and rules up front. Some are open to all, others check your account or review your request to join.",
   },
   {
     title: "Post and submit",
-    body: "Post the clip on your own account, paste the link, and we start counting the views it gains from there.",
+    body: "Post the video on the account you joined with and paste the link. Once it is approved, the views it gains from there count.",
   },
   {
     title: "Cash out",
-    body: "When a campaign wraps up, your earnings are released and you can withdraw to PayPal or USDT.",
+    body: "After a campaign ends and its numbers are final, your earnings are released and you can withdraw to PayPal or USDT.",
   },
 ];
 

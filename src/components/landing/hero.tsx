@@ -32,7 +32,7 @@ export function Hero({ ctaHref, ctaLabel }: { ctaHref: string; ctaLabel: string 
           </h1>
 
           <p className="mt-6 max-w-md text-lg text-pretty text-muted-foreground sm:text-xl">
-            Join a campaign, post on your own account, and earn on every view the clip
+            Join a campaign, post on your own account, and earn on the views the clip
             picks up after you submit it.
           </p>
 
