@@ -1,4 +1,12 @@
+import { Calculator } from "@/components/landing/calculator";
+import { CampaignsCta } from "@/components/landing/campaigns-cta";
+import { Faq } from "@/components/landing/faq";
+import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
+import { HowItWorks } from "@/components/landing/how-it-works";
+import { LandingFooter } from "@/components/landing/landing-footer";
+import { LandingNav } from "@/components/landing/landing-nav";
+import { Updates } from "@/components/landing/updates";
 import { serverFetch } from "@/lib/api-server";
 
 /**
@@ -12,5 +20,25 @@ export default async function LandingPage() {
     .then(() => true)
     .catch(() => false);
 
-  return <Hero ctaHref={signedIn ? "/dashboard" : "/login"} />;
+  const cta = signedIn
+    ? { ctaHref: "/dashboard", ctaLabel: "Go to dashboard" }
+    : { ctaHref: "/login", ctaLabel: "Get Started" };
+
+  return (
+    <>
+      <LandingNav {...cta} />
+      <main className="overflow-x-clip">
+        <Hero {...cta} />
+        <HowItWorks />
+        <Features />
+        <Calculator />
+        <CampaignsCta
+          href={signedIn ? "/dashboard/campaigns" : "/login?next=%2Fdashboard%2Fcampaigns"}
+        />
+        <Updates />
+        <Faq />
+      </main>
+      <LandingFooter {...cta} />
+    </>
+  );
 }
