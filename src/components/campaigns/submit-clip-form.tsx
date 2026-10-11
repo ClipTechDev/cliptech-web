@@ -142,8 +142,7 @@ export function SubmitClipForm({
       {failedChecks && (
         <SubmissionIssues issues={failedChecks.issues} heading="Your clip wasn't accepted">
           <p className="text-xs text-muted-foreground">
-            Nothing was saved. We&apos;ve also sent these details to your
-            notifications and email.
+            Nothing was saved. Fix the post, then submit the link again.
           </p>
         </SubmissionIssues>
       )}

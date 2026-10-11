@@ -164,7 +164,7 @@ function statusLine(status: SubmissionDisplayStatus, submission: Submission): st
     case "completed":
       return "This campaign has been settled. These numbers are final.";
     default:
-      return "Approved. No more view checks are scheduled for this clip.";
+      return "Approved. Views are checked on a schedule while the campaign runs.";
   }
 }
 
