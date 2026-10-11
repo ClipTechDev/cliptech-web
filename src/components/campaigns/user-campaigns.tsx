@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { LoadMore } from "@/components/shared/load-more";
 import { QueryState } from "@/components/shared/query-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CampaignCard } from "@/components/campaigns/campaign-card";
+import { MyCampaignCard } from "@/components/campaigns/my-campaign-card";
 
 export function UserCampaigns() {
   const {
@@ -28,7 +28,7 @@ export function UserCampaigns() {
       loadingFallback={
         <div className="space-y-3">
           {[0, 1, 2].map((index) => (
-            <Skeleton key={index} className="h-40 w-full rounded-xl" />
+            <Skeleton key={index} className="h-80 w-full rounded-2xl" />
           ))}
         </div>
       }
@@ -43,10 +43,10 @@ export function UserCampaigns() {
         />
       }
     >
-      <ul className="space-y-inline">
+      <ul className="grid gap-3 md:grid-cols-2 md:items-start">
         {campaigns.map((campaign) => (
           <li key={campaign.id}>
-            <CampaignCard campaign={campaign} />
+            <MyCampaignCard campaign={campaign} />
           </li>
         ))}
       </ul>
