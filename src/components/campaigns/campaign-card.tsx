@@ -1,100 +1,95 @@
+"use client";
+
 import Link from "next/link";
-import { Coins, Eye, Timer } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
-import {
-  formatCompactNumber,
-  formatCurrency,
-  formatRelative,
-  platformLabel,
-} from "@/lib/format";
+import { formatCurrency, formatRelative, humanise, platformLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { Campaign } from "@/schemas/campaign";
-import { CampaignStatusBadge } from "@/components/campaigns/campaign-status-badge";
-import { CampaignMembershipBadge } from "@/components/campaigns/campaign-membership-badge";
+import { useMyMembershipsQuery } from "@/hooks/use-campaign-membership";
+import { membershipBadge } from "@/schemas/membership";
+import { campaignClosedReason, campaignFinished, type Campaign } from "@/schemas/campaign";
+import { cardHeroValue, cardInteractive, cardSurface } from "@/components/shared/card-surface";
+import { Badge } from "@/components/ui/badge";
 
-/**
- * The unit of the campaigns tab. Answers, in order: what is it, what does it
- * pay, how long is left, is it still open.
- *
- * CPM is the headline because it is the number creators compare campaigns on;
- * remaining budget sits under it as a bar, since "how much is left" decides
- * whether the CPM is worth chasing.
- */
 export function CampaignCard({ campaign }: { campaign: Campaign }) {
-  const spent = Math.min(Math.max(campaign.budget_used_percent, 0), 100);
+  const memberships = useMyMembershipsQuery();
+  const membership = membershipBadge(memberships.data ?? [], campaign.id);
+
+  const open = campaign.accepts_submissions;
+  const upcoming = !open && new Date(campaign.starts_at) > new Date();
+  const left = Math.round(100 - Math.min(Math.max(campaign.budget_used_percent, 0), 100));
+  const closedReason = campaignClosedReason(campaign) ?? humanise(campaign.status);
+
+  const chip = membership ? (
+    <Badge variant={membership === "Joined" ? "success" : "secondary"}>{membership}</Badge>
+  ) : open ? (
+    <Badge variant="success">Open</Badge>
+  ) : (
+    <Badge variant="secondary">{closedReason}</Badge>
+  );
 
   return (
     <Link
       href={`/dashboard/campaigns/${campaign.id}`}
       className={cn(
-        "block overflow-hidden rounded-xl border bg-card transition-colors",
-        "hover:border-primary/40 focus-visible:border-primary focus-visible:outline-none",
-        !campaign.accepts_submissions && "opacity-75"
+        "group block overflow-hidden",
+        cardSurface,
+        cardInteractive,
+        campaignFinished(campaign) && "opacity-70"
       )}
     >
-      {campaign.banner_url && (
-        // Plain img, not next/image: banner_url points at whatever host the
-        // API's storage is configured for (local ./media in dev, GCS or a CDN
-        // in production), and next/image would need each one allow-listed.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={campaign.banner_url}
-          alt=""
-          className="h-28 w-full object-cover sm:h-36"
-          loading="lazy"
-        />
+      {campaign.banner_url ? (
+        <div className="relative">
+          {/* Plain img: banner_url host is whatever the API storage uses. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={campaign.banner_url}
+            alt=""
+            className="h-32 w-full object-cover sm:h-40"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" />
+          <div className="absolute top-3 left-3">{chip}</div>
+        </div>
+      ) : (
+        <div className="px-4 pt-4">{chip}</div>
       )}
 
-      <div className="space-y-inline p-card">
-        <div className="gap-inline flex items-start justify-between">
-          <h3 className="font-heading line-clamp-2 font-semibold">{campaign.name}</h3>
-          <div className="gap-tight flex shrink-0 flex-wrap justify-end">
-            <CampaignMembershipBadge campaignId={campaign.id} />
-            <CampaignStatusBadge campaign={campaign} />
-          </div>
-        </div>
-
-        <div className="gap-x-card gap-y-tight flex flex-wrap items-center text-sm">
-          <span className="gap-tight flex items-center font-medium">
-            <Coins className="size-4 text-primary" />
-            {formatCurrency(campaign.cpm)}
-            <span className="font-normal text-muted-foreground">/ 1k views</span>
-          </span>
-
-          {campaign.minimum_views !== null && (
-            <span className="gap-tight flex items-center text-muted-foreground">
-              <Eye className="size-4" />
-              {formatCompactNumber(campaign.minimum_views)} min
-            </span>
+      <div className="space-y-3 p-4">
+        <div className="space-y-0.5">
+          <h3 className="font-heading line-clamp-2 text-base leading-snug font-semibold">
+            {campaign.name}
+          </h3>
+          {campaign.allowed_platforms.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {campaign.allowed_platforms.map(platformLabel).join(" · ")}
+            </p>
           )}
-
-          <span className="gap-tight flex items-center text-muted-foreground">
-            <Timer className="size-4" />
-            Ends {formatRelative(campaign.ends_at)}
-          </span>
         </div>
 
-        <div className="space-y-tight">
-          <div
-            role="progressbar"
-            aria-label="Budget used"
-            aria-valuenow={Math.round(spent)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            className="h-1.5 overflow-hidden rounded-full bg-muted"
-          >
-            <div className="h-full rounded-full bg-primary" style={{ width: `${spent}%` }} />
+        <div className="flex items-end justify-between gap-3">
+          <p className="leading-none">
+            <span className={cardHeroValue}>
+              {formatCurrency(campaign.cpm)}
+            </span>
+            <span className="ml-1.5 text-xs text-muted-foreground">per 1k views</span>
+          </p>
+          <ChevronRight className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        </div>
+
+        {upcoming && (
+          <p className="text-xs text-muted-foreground">
+            Starts {formatRelative(campaign.starts_at)}
+          </p>
+        )}
+
+        {open && (
+          <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+            <span>Ends {formatRelative(campaign.ends_at)}</span>
+            <span className={cn(left <= 20 && "font-medium text-amber-500")}>
+              {left <= 20 ? `Only ${left}% budget left` : `${left}% budget left`}
+            </span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {formatCurrency(campaign.remaining_budget)} of{" "}
-            {formatCurrency(campaign.total_budget)} left
-          </p>
-        </div>
-
-        {campaign.allowed_platforms.length > 0 && (
-          <p className="text-xs text-muted-foreground">
-            {campaign.allowed_platforms.map(platformLabel).join(" · ")}
-          </p>
         )}
       </div>
     </Link>

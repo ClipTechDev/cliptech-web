@@ -124,6 +124,15 @@ export function campaignClosedReason(campaign: Campaign): string | null {
   return "Closed";
 }
 
+/**
+ * Over for good, as opposed to not started or paused: nothing a creator does
+ * on it now can earn, so joining and posting guidance are both moot.
+ */
+export function campaignFinished(campaign: Campaign): boolean {
+  const reason = campaignClosedReason(campaign);
+  return reason !== null && reason !== "Not started yet" && reason !== "Paused";
+}
+
 export function mentionEntries(campaign: Campaign): [Platform, string][] {
   return campaign.allowed_platforms.flatMap((platform) => {
     const handle = campaign.mentions?.[platform];
