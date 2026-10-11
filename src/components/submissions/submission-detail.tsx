@@ -4,22 +4,28 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import {
   formatCompactNumber,
   formatCurrency,
-  formatDateTime,
   formatRelative,
   platformLabel,
 } from "@/lib/format";
 import {
   submissionDisplayStatus,
   type Submission,
+  type SubmissionDisplayStatus,
   type SubmissionLog,
 } from "@/schemas/submission";
 import { buttonVariants } from "@/components/ui/button";
-import { StatCard } from "@/components/shared/stat-card";
+import { cardHeroValue } from "@/components/shared/card-surface";
 import { RecheckButton } from "@/components/submissions/recheck-button";
+import { SubmissionInfo } from "@/components/submissions/submission-info";
 import { SubmissionIssues } from "@/components/submissions/submission-issues";
 import { SubmissionStatusBadge } from "@/components/submissions/submission-status-badge";
 import { TrackingHistory } from "@/components/submissions/tracking-history";
 
+/**
+ * One clip. The page answers three things - what state it is in, what it has
+ * earned, and what (if anything) needs fixing. The full set of counters and
+ * timestamps lives behind the details button.
+ */
 export function SubmissionDetail({
   submission,
   logs,
@@ -28,17 +34,24 @@ export function SubmissionDetail({
   logs: SubmissionLog[];
 }) {
   const status = submissionDisplayStatus(submission);
+  const issues = submission.issues ?? [];
+  const stopped = status === "rejected" || status === "invalidated";
+  const hasProblem =
+    Boolean(submission.rejection_reason) || Boolean(submission.invalid_reason) || issues.length > 0;
 
   return (
-    <article className="space-y-section pb-card">
+    <article className="space-y-section pb-card pt-4">
       <div className="space-y-block">
-        <Link
-          href="/dashboard/submissions"
-          className={buttonVariants({ variant: "ghost", size: "lg" })}
-        >
-          <ArrowLeft />
-          Your clips
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link
+            href="/dashboard/submissions"
+            className={buttonVariants({ variant: "ghost", size: "lg", className: "-ml-2.5" })}
+          >
+            <ArrowLeft />
+            Your clips
+          </Link>
+          <SubmissionInfo submission={submission} />
+        </div>
 
         <div className="space-y-tight">
           <div className="gap-inline flex items-start justify-between">
@@ -48,98 +61,78 @@ export function SubmissionDetail({
             <SubmissionStatusBadge status={status} />
           </div>
 
-          <a
-            href={submission.post_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="gap-tight inline-flex max-w-full items-center text-sm text-muted-foreground hover:text-foreground hover:underline"
-          >
-            <span className="shrink-0">{platformLabel(submission.platform)}</span>
-            <span aria-hidden>·</span>
-            <span className="truncate">{submission.post_url}</span>
-            <ExternalLink className="size-3.5 shrink-0" />
-          </a>
-        </div>
-      </div>
-
-      <div className="space-y-block">
-        <div className="gap-inline grid grid-cols-2">
-          <StatCard
-            label="Payable views"
-            value={formatCompactNumber(submission.payable_views)}
-          />
-          <StatCard
-            label="Earned"
-            value={formatCurrency(submission.earnings)}
-            emphasis
-          />
-          <StatCard
-            label="Paid so far"
-            value={formatCurrency(submission.credited_amount)}
-          />
-          <StatCard
-            label="Pending"
-            value={formatCurrency(submission.pending_amount)}
-            hint={
-              submission.pending_amount === 0 ? "all credited" : "released after the campaign ends"
-            }
-          />
+          <p className="gap-inline flex flex-wrap items-center text-sm text-muted-foreground">
+            <a
+              href={submission.post_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="gap-tight inline-flex items-center hover:text-foreground hover:underline"
+            >
+              View {platformLabel(submission.platform)} post
+              <ExternalLink className="size-3.5 shrink-0" />
+            </a>
+            <Link
+              href={`/dashboard/campaigns/${submission.campaign_id}`}
+              className="hover:text-foreground hover:underline"
+            >
+              View campaign
+            </Link>
+          </p>
         </div>
 
-        <dl className="space-y-tight p-card rounded-xl border text-sm">
-          <DetailRow label="Views when submitted">
-            {submission.starting_views === null
-              ? "Not checked"
-              : formatCompactNumber(submission.starting_views)}
-          </DetailRow>
-          <DetailRow label="Views now">
-            {formatCompactNumber(submission.raw_views)}
-          </DetailRow>
-          <DetailRow label="Eligible views">
-            {formatCompactNumber(submission.eligible_views)}
-          </DetailRow>
-          <DetailRow label="Submitted">
-            {formatDateTime(submission.submitted_at)}
-          </DetailRow>
-          <DetailRow label="Last checked">
-            {submission.last_tracked_at
-              ? formatRelative(submission.last_tracked_at)
-              : "Not yet"}
-          </DetailRow>
-          <DetailRow label="Next check">
-            {status === "completed"
-              ? "Finished"
-              : submission.next_tracking_at
-                ? formatRelative(submission.next_tracking_at)
-                : "Not scheduled"}
-          </DetailRow>
-        </dl>
+        <div className="p-card space-y-inline card-surface">
+          <p className="leading-none">
+            <span className={cardHeroValue}>{formatCurrency(submission.earnings)}</span>
+            <span className="ml-1.5 text-sm text-muted-foreground">earned</span>
+          </p>
 
-        {submission.starting_views !== null && submission.starting_views > 0 && (
-          <p className="text-sm text-muted-foreground">
-            This post already had {formatCompactNumber(submission.starting_views)} views
-            when you submitted it. Only the views it gained afterwards count towards
-            this campaign.
+          <dl className="grid grid-cols-2 gap-3 border-t pt-3 text-sm">
+            <Fact label="Views counted">{formatCompactNumber(submission.payable_views)}</Fact>
+            <Fact label="Paid out">{formatCurrency(submission.credited_amount)}</Fact>
+          </dl>
+
+          {submission.pending_amount > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {formatCurrency(submission.pending_amount)} pending · released after the
+              campaign ends
+            </p>
+          )}
+        </div>
+
+        {!stopped && (
+          <p className="text-sm text-muted-foreground">{statusLine(status, submission)}</p>
+        )}
+
+        {!stopped && submission.starting_views !== null && submission.starting_views > 0 && (
+          <p className="text-xs text-muted-foreground">
+            This post had {formatCompactNumber(submission.starting_views)} views when you
+            submitted it. Only views after that count.
           </p>
         )}
       </div>
 
-      {(submission.rejection_reason ||
-        submission.invalid_reason ||
-        submission.issues.length > 0) && (
+      {hasProblem && (
         <section className="space-y-inline">
-          <h2 className="font-heading font-semibold">Why this isn&apos;t earning</h2>
+          <h2 className="font-heading font-semibold">
+            {stopped ? "Why this isn't earning" : "Needs your attention"}
+          </h2>
 
           {submission.rejection_reason && (
-            <p className="p-card rounded-xl border border-destructive/30 bg-destructive/5 text-sm">
+            <p className="p-card rounded-2xl border border-destructive/30 bg-destructive/5 text-sm">
               {submission.rejection_reason}
             </p>
           )}
 
           <SubmissionIssues
-            issues={submission.issues}
-            invalidReason={submission.invalid_reason}
-            heading="Fix these, then re-check the post"
+            issues={issues}
+            invalidReason={
+              issues.some((issue) => issue.code === submission.invalid_reason)
+                ? null
+                : submission.invalid_reason
+            }
+            heading={
+              submission.can_recheck ? "Fix this, then re-check the post" : "What went wrong"
+            }
           >
             {submission.can_recheck && (
               <RecheckButton submissionId={submission.id} refreshOnSuccess />
@@ -148,19 +141,38 @@ export function SubmissionDetail({
         </section>
       )}
 
-      <section className="space-y-inline">
-        <h2 className="font-heading font-semibold">Tracking history</h2>
-        <TrackingHistory logs={logs} />
-      </section>
+      {logs.length > 0 && (
+        <section className="space-y-inline">
+          <h2 className="font-heading font-semibold">View checks</h2>
+          <TrackingHistory logs={logs} />
+        </section>
+      )}
     </article>
   );
 }
 
-function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
+function statusLine(status: SubmissionDisplayStatus, submission: Submission): string {
+  switch (status) {
+    case "pending":
+      return "We're reviewing this clip. It starts earning once it's approved.";
+    case "flagged":
+      return "Our team is taking a closer look at this clip. You don't need to do anything.";
+    case "tracking":
+      return submission.next_tracking_at
+        ? `We're counting views. Next check ${formatRelative(submission.next_tracking_at)}.`
+        : "We're counting views.";
+    case "completed":
+      return "This campaign has been settled. These numbers are final.";
+    default:
+      return "Approved. No more view checks are scheduled for this clip.";
+  }
+}
+
+function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="gap-inline flex items-center justify-between">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="text-right font-medium tabular-nums">{children}</dd>
+    <div className="min-w-0">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="truncate font-medium tabular-nums">{children}</dd>
     </div>
   );
 }
