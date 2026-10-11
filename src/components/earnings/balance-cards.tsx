@@ -88,7 +88,7 @@ function BalanceCard({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="p-card space-y-block rounded-2xl border bg-card sm:p-5">
+    <div className="p-card space-y-block card-surface sm:p-5">
       <div className="gap-tight flex items-center">
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
         <Popover>

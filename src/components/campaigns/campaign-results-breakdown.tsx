@@ -36,7 +36,7 @@ function EntryBreakdown({ entries }: { entries: CampaignResult["my_entries"] }) 
   return (
     // The table is wider than a 375px screen and must scroll inside its own
     // box rather than making the page scroll sideways.
-    <div className="overflow-x-auto rounded-xl border">
+    <div className="overflow-x-auto card-surface">
       <table className="w-full min-w-[30rem] text-sm">
         <thead>
           <tr className="border-b text-muted-foreground">

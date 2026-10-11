@@ -141,7 +141,7 @@ function PayoutMethodRow({
   const content = payoutMethodContent(method);
 
   return (
-    <li className="flex items-center justify-between gap-3 rounded-xl border p-3">
+    <li className="flex items-center justify-between gap-3 card-surface p-3">
       <div className="min-w-0 space-y-0.5">
         <div className="flex items-center gap-2">
           <p className="truncate font-medium">
@@ -205,7 +205,7 @@ export function AddPayoutMethodForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-inline rounded-xl border p-card"
+        className="space-y-inline card-surface p-card"
       >
         <FormField
           control={form.control}

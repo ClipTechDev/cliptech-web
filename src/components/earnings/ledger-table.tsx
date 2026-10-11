@@ -53,7 +53,7 @@ export function LedgerTable({
   const template = gridColumns(columns);
 
   return (
-    <div className="overflow-hidden rounded-2xl border bg-card">
+    <div className="overflow-hidden card-surface">
       <div className="hidden sm:grid" style={{ gridTemplateColumns: template }}>
         {columns.map((column, index) => (
           <div

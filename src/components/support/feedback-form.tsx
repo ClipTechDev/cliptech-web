@@ -131,7 +131,7 @@ export function FeedbackForm() {
           <p className="text-sm leading-none font-medium">Screenshot (optional)</p>
 
           {screenshot ? (
-            <div className="gap-inline p-card flex items-center rounded-xl border">
+            <div className="gap-inline p-card flex items-center card-surface">
               <p className="min-w-0 flex-1 truncate text-sm">{screenshot.name}</p>
               <Button
                 type="button"

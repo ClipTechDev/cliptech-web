@@ -25,7 +25,7 @@ export function PushNotificationsCard() {
   if (permission === null) return null;
 
   return (
-    <div className="gap-inline p-card flex items-start rounded-xl border">
+    <div className="gap-inline p-card flex items-start card-surface">
       <div className="p-tight mt-0.5 shrink-0 rounded-full bg-muted">
         {enabled ? (
           <Bell className="size-4 text-primary" />

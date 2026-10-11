@@ -104,7 +104,7 @@ export function ProfileScreen() {
               <div className="space-y-inline">
                 <Link
                   href="/dashboard/support"
-                  className="gap-inline p-card flex items-center rounded-xl border transition-colors hover:border-primary/40"
+                  className="gap-inline p-card flex items-center card-surface transition-colors hover:border-primary/40"
                 >
                   <LifeBuoy className="size-4 shrink-0 text-muted-foreground" />
                   <span className="min-w-0 flex-1">
@@ -160,7 +160,7 @@ function Section({
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className="p-card space-y-block scroll-mt-20 rounded-2xl border bg-card sm:p-5 lg:scroll-mt-24"
+      className="p-card space-y-block scroll-mt-20 card-surface sm:p-5 lg:scroll-mt-24"
     >
       <div className="space-y-1">
         <h2 id={`${id}-heading`} className="font-heading font-semibold">

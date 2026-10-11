@@ -182,73 +182,75 @@ function SocialAccountRow({
   }, [confirming]);
 
   return (
-    <li className="flex items-center justify-between gap-3 rounded-xl border p-3">
-      <div className="min-w-0 space-y-0.5">
-        <div className="flex items-center gap-2">
+    <li className="@container card-surface">
+      <div className="flex flex-col @xl:flex-row @xl:items-center @xl:justify-between @xl:gap-3">
+        <div className="min-w-0 space-y-1.5 p-3">
           <p className="truncate font-medium">{accountLabel(account)}</p>
-          {connected && <Badge variant="success">Connected</Badge>}
-          {connected && byCode && (
-            <Badge variant="secondary">
-              <KeyRound />
-              Verified by code
-            </Badge>
-          )}
-          {account.needs_reconnect && (
-            <Badge variant="warning">
-              <TriangleAlert />
-              {byCode ? "Re-verify" : "Reconnect"}
-            </Badge>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {connected && <Badge variant="success">Connected</Badge>}
+            {connected && byCode && (
+              <Badge variant="secondary">
+                <KeyRound />
+                Verified by code
+              </Badge>
+            )}
+            {account.needs_reconnect && (
+              <Badge variant="warning">
+                <TriangleAlert />
+                {byCode ? "Re-verify" : "Reconnect"}
+              </Badge>
+            )}
+          </div>
+          <p className="text-xs break-words text-muted-foreground">
+            {!account.platform_username && `${account.platform_account_id} · `}
+            connected {formatRelative(connectedAt)}
+          </p>
+          {account.last_error && (
+            <p className="text-xs text-destructive">
+              We couldn&apos;t renew this connection. Reconnect to keep it tracking.
+            </p>
           )}
         </div>
-        <p className="truncate text-xs text-muted-foreground">
-          {!account.platform_username && `${account.platform_account_id} · `}
-          connected {formatRelative(connectedAt)}
-        </p>
-        {account.last_error && (
-          <p className="truncate text-xs text-destructive">
-            We couldn&apos;t renew this connection. Reconnect to keep it tracking.
-          </p>
-        )}
-      </div>
 
-      <div className="flex shrink-0 items-center gap-1">
-        {account.needs_reconnect && (
-          <Button variant="outline" size="sm" onClick={onReconnect}>
-            <Plug />
-            {byCode ? "Re-verify" : "Reconnect"}
-          </Button>
-        )}
-        {connected && byCode && (
-          <Button variant="ghost" size="sm" disabled={upgrading} onClick={onUpgrade}>
-            {upgrading && <Loader2 className="animate-spin" />}
-            Sign in instead
-          </Button>
-        )}
-        {confirming ? (
-          <>
-            <Button
-              variant="destructive"
-              size="sm"
-              disabled={disconnecting}
-              onClick={onDisconnect}
-            >
-              {disconnecting && <Loader2 className="animate-spin" />}
-              Confirm
+        <div className="flex flex-wrap items-center justify-end gap-1 border-t px-2 py-1.5 @xl:shrink-0 @xl:border-t-0 @xl:py-3 @xl:pr-3 @xl:pl-0">
+          {account.needs_reconnect && (
+            <Button variant="outline" size="sm" onClick={onReconnect}>
+              <Plug />
+              {byCode ? "Re-verify" : "Reconnect"}
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={disconnecting}
-              onClick={() => setConfirming(false)}
-            >
-              Cancel
+          )}
+          {connected && byCode && (
+            <Button variant="ghost" size="sm" disabled={upgrading} onClick={onUpgrade}>
+              {upgrading && <Loader2 className="animate-spin" />}
+              Sign in instead
             </Button>
-          </>
-        ) : (
-          <Button variant="ghost" size="sm" onClick={() => setConfirming(true)}>
-            Remove
-          </Button>
-        )}
+          )}
+          {confirming ? (
+            <>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={disconnecting}
+                onClick={onDisconnect}
+              >
+                {disconnecting && <Loader2 className="animate-spin" />}
+                Confirm
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={disconnecting}
+                onClick={() => setConfirming(false)}
+              >
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <Button variant="ghost" size="sm" onClick={() => setConfirming(true)}>
+              Remove
+            </Button>
+          )}
+        </div>
       </div>
     </li>
   );

@@ -21,7 +21,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "p-card rounded-xl border",
+        "p-card card-surface",
         emphasis && "border-primary/30 bg-primary/5"
       )}
     >

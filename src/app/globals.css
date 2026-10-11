@@ -4,6 +4,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@utility card-surface {
+  @apply rounded-2xl border border-border/80 bg-card shadow-sm shadow-black/[0.04];
+  @variant dark {
+    @apply border-white/[0.09] shadow-none ring-1 ring-white/[0.03] ring-inset;
+  }
+}
+
 @theme inline {
   /* --- Spacing scale ---------------------------------------------------
      Five steps, and nothing in between. Every pad, gap and inset in the app
