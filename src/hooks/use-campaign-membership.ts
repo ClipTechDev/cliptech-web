@@ -60,6 +60,36 @@ export function useJoinCampaignMutation(campaignId: string) {
   });
 }
 
+export function useJoinAllPagesMutation(campaignId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<MembershipsResponse>(`/campaigns/${campaignId}/join`, {
+        method: "POST",
+        body: {},
+      }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: membershipKeys.all });
+    },
+  });
+}
+
+export function useRefreshMembershipMutation(campaignId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<MembershipOverviewResponse>(`/campaigns/${campaignId}/membership/refresh`, {
+        method: "POST",
+        timeoutMs: 30_000,
+      }),
+    onSuccess: (response) => {
+      queryClient.setQueryData(membershipKeys.overview(campaignId), response);
+    },
+  });
+}
+
 export function useLeaveCampaignMutation() {
   const queryClient = useQueryClient();
 

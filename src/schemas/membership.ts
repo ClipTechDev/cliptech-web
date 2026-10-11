@@ -41,6 +41,8 @@ export type MembershipPage = {
   can_join: boolean;
   blocked_reason?: string;
   retry_at: string | null;
+  eligible: boolean | null;
+  unmet: string[];
 };
 
 export type MembershipOverview = {
@@ -55,16 +57,16 @@ export type MembershipOverview = {
 
 export type MembershipOverviewResponse = { success: boolean; membership: MembershipOverview };
 export type MembershipResponse = { success: boolean; message?: string; membership: Membership };
-export type MembershipsResponse = { success: boolean; memberships: Membership[] };
+export type MembershipsResponse = { success: boolean; message?: string; memberships: Membership[] };
 
 export const JOIN_METHOD_COPY: Record<JoinMethod, { title: string; body: string }> = {
   open: {
     title: "Open to everyone",
-    body: "Join with one of your pages and you can submit clips straight away.",
+    body: "Join once and you can submit clips from any of your pages straight away.",
   },
   criteria: {
     title: "Pages must meet the requirements",
-    body: "We check your page when you join. If it qualifies, you can submit straight away.",
+    body: "Join with a page that meets the requirements and you can submit straight away.",
   },
   manual: {
     title: "Our team approves each page",
