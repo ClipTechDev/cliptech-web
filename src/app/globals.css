@@ -139,6 +139,7 @@
      and two files need to agree on the number. */
   :root {
     --app-nav-clearance: 5.5rem;
+    --app-topbar-height: 3.5rem;
   }
 
   /* iOS momentum scrolling past the end of the page reveals the body

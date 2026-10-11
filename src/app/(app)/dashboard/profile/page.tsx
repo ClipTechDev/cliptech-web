@@ -6,7 +6,10 @@ export const metadata = { title: "Profile · ClipTech" };
 export default function ProfilePage() {
   return (
     <>
-      <PageHeader title="Profile" />
+      <PageHeader
+        title="Profile"
+        description="Your account, payout methods and connected socials."
+      />
       <ProfileScreen />
     </>
   );
