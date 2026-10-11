@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import { Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
+import { CHECKS_FAILED_CODE, apiErrorDetails } from "@/lib/api-client";
 import { useRecheckSubmissionMutation } from "@/hooks/use-submissions";
+import { issueCopy } from "@/schemas/submission";
 import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/components/shared/query-state";
 
@@ -30,17 +32,20 @@ export function RecheckButton({
           onSuccess: (response) => {
             if (response.submission.status === "approved") {
               toast.success("Looks good — tracking has started");
-            } else if (
-              response.submission.status === "pending" &&
-              response.submission.issues.length === 0
-            ) {
-              toast.success("Looks good — it's now awaiting review");
             } else {
-              toast.error("Still not tracking. Check the issues below.");
+              toast.success("Looks good — it's now awaiting review");
             }
             if (refreshOnSuccess) router.refresh();
           },
-          onError: (error) => toast.error(errorMessage(error)),
+          onError: (error) => {
+            const details = apiErrorDetails(error);
+            const issue = details.code === CHECKS_FAILED_CODE ? details.issues?.[0] : undefined;
+            if (issue) {
+              toast.error("Still not tracking", { description: issueCopy(issue).title });
+              return;
+            }
+            toast.error(errorMessage(error));
+          },
         })
       }
     >

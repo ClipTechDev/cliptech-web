@@ -10,14 +10,12 @@ const VARIANTS: Record<
   approved: "success",
   tracking: "success",
   completed: "secondary",
-  needs_fixing: "warning",
   rejected: "destructive",
   invalidated: "destructive",
   flagged: "warning",
 };
 
 const LABELS: Partial<Record<SubmissionDisplayStatus, string>> = {
-  needs_fixing: "Needs fixing",
   pending: "Awaiting review",
 };
 

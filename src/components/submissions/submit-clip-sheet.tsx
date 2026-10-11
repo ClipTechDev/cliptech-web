@@ -223,11 +223,11 @@ export function SubmitClipSheet() {
               </div>
             )}
 
-            <SubmissionIssues
-              issues={issues}
-              next="resubmit"
-              heading="Not submitted - fix this on the post, then submit it again"
-            />
+            <SubmissionIssues issues={issues} heading="Your clip wasn't accepted">
+              <p className="text-xs text-muted-foreground">
+                Nothing was saved. Fix the post, then submit the link again.
+              </p>
+            </SubmissionIssues>
 
             <Button
               type="submit"

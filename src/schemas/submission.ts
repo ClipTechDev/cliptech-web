@@ -99,21 +99,11 @@ export type SubmissionLogsResponse = PaginatedResponse<"logs", SubmissionLog>;
  * submission.Status, which would mean a migration and two sources of truth for
  * the same fact.
  */
-export type SubmissionDisplayStatus =
-  | SubmissionStatus
-  | "tracking"
-  | "completed"
-  | "needs_fixing";
+export type SubmissionDisplayStatus = SubmissionStatus | "tracking" | "completed";
 
 export function submissionDisplayStatus(
   submission: Submission
 ): SubmissionDisplayStatus {
-  if (
-    (submission.status === "rejected" || submission.status === "pending") &&
-    submission.issues.length > 0
-  ) {
-    return "needs_fixing";
-  }
   if (submission.status !== "approved") return submission.status;
 
   // A settled campaign is final: nothing about this submission changes again.
@@ -142,6 +132,7 @@ export const SUBMISSION_ISSUE_CODES = [
   "not_post_owner",
   "missing_hashtags",
   "views_unavailable",
+  "not_video",
   "page_not_joined",
   "missing_mention",
   "missing_caption_text",
@@ -156,76 +147,70 @@ export type SubmissionIssue = {
 
 type IssueCopy = { title: string; fix: string; reason?: string };
 
-export type IssueNextStep = "recheck" | "resubmit";
+const THEN = "then submit it again";
 
-const THEN: Record<IssueNextStep, string> = {
-  recheck: "then re-check",
-  resubmit: "then submit it again",
-};
-
-const RETRY: Record<IssueNextStep, string> = {
-  recheck: "Try re-checking in a little while.",
-  resubmit: "Try submitting again in a little while.",
-};
-
-type IssueCopyTemplate = { title: string; fix: (next: IssueNextStep) => string };
+type IssueCopyTemplate = { title: string; fix: string };
 
 export const SUBMISSION_ISSUE_COPY: Record<SubmissionIssueCode, IssueCopyTemplate> = {
   account_disconnected: {
     title: "That platform isn't connected",
-    fix: (next) => `Connect the account you posted from on the Profile tab, ${THEN[next]}.`,
+    fix: `Connect the account you posted from on the Profile tab, ${THEN}.`,
   },
   tracking_unavailable: {
     title: "We can't track that platform right now",
-    fix: (next) => `This is on our side. ${RETRY[next]}`,
+    fix: "This is on our side. Try submitting again in a little while.",
   },
   post_unreadable: {
     title: "We couldn't read that post",
-    fix: (next) => `Make sure it's public and still online, ${THEN[next]}.`,
+    fix: `Make sure it's public and still online, ${THEN}.`,
   },
   not_post_owner: {
     title: "That post isn't on your connected account",
-    fix: () =>
+    fix:
       "Submit a post from an account you've connected, or connect the account that published it.",
   },
   missing_hashtags: {
     title: "The caption is missing required hashtags",
-    fix: (next) => `Add them to the post's caption, ${THEN[next]}.`,
+    fix: `Add them to the post's caption, ${THEN}.`,
   },
   views_unavailable: {
     title: "That post doesn't report a view count",
-    fix: () =>
+    fix:
       "Only videos and reels report views — photos and carousels never do. Submit a video instead.",
+  },
+  not_video: {
+    title: "That post isn't a video",
+    fix: "Only videos and reels can be entered — photos, carousels and text posts can't. Submit a video instead.",
   },
   missing_mention: {
     title: "The caption is missing the required mention",
-    fix: (next) => `Mention the campaign's account in the post's caption, ${THEN[next]}.`,
+    fix: `Mention the campaign's account in the post's caption, ${THEN}.`,
   },
   missing_caption_text: {
     title: "The caption is missing required text",
-    fix: (next) => `Add the campaign's required text to the post's caption, ${THEN[next]}.`,
+    fix: `Add the campaign's required text to the post's caption, ${THEN}.`,
   },
   page_not_joined: {
     title: "This post is from a page that hasn't joined the campaign",
-    fix: () =>
+    fix:
       "Join the campaign with this page first, or submit a post from a page that has joined.",
   },
 };
 
-export function issueCopy(issue: SubmissionIssue, next: IssueNextStep = "recheck"): IssueCopy {
+export function issueCopy(issue: SubmissionIssue): IssueCopy {
   const template = SUBMISSION_ISSUE_COPY[issue.code as SubmissionIssueCode];
   if (!template) {
-    return { title: humaniseIssueCode(issue.code), fix: `Fix the post, ${THEN[next]}.` };
+    return { title: humaniseIssueCode(issue.code), fix: `Fix the post, ${THEN}.` };
   }
-  const copy: IssueCopy = { title: template.title, fix: template.fix(next) };
+  const copy: IssueCopy = { title: template.title, fix: template.fix };
   if (issue.code === "page_not_joined" && issue.detail) {
     return { ...copy, fix: `Post it from ${issue.detail}, or join the campaign with this page first.` };
   }
   if ((issue.code === "missing_mention" || issue.code === "missing_caption_text") && issue.detail) {
-    return { ...copy, fix: `Add ${issue.detail} to the post's caption, ${THEN[next]}.` };
+    return { ...copy, fix: `Add ${issue.detail} to the post's caption, ${THEN}.` };
   }
   if (issue.code === "missing_hashtags" && issue.detail) {
-    return { ...copy, fix: `Add ${issue.detail} to the post's caption, ${THEN[next]}.` };
+    return { ...copy, fix: `Add ${issue.detail} to the post's caption, ${THEN}.` };
   }
   if (issue.detail) {
     return { ...copy, reason: sentence(issue.detail) };

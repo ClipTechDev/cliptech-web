@@ -1,16 +1,15 @@
 import { AlertTriangle } from "lucide-react";
 
 import { humanise } from "@/lib/format";
-import { issueCopy, type IssueNextStep, type SubmissionIssue } from "@/schemas/submission";
+import { issueCopy, type SubmissionIssue } from "@/schemas/submission";
 
 type Entry = { key: string; title: string; fix: string; reason?: string };
 
 function entries(
   issues: SubmissionIssue[],
-  invalidReason: string | null | undefined,
-  next: IssueNextStep
+  invalidReason: string | null | undefined
 ): Entry[] {
-  const list = issues.map((issue) => ({ key: issue.code, ...issueCopy(issue, next) }));
+  const list: Entry[] = issues.map((issue) => ({ key: issue.code, ...issueCopy(issue) }));
 
   if (invalidReason === "duplicate_submission") {
     list.push({
@@ -30,19 +29,17 @@ function entries(
 }
 
 export function SubmissionIssues({
-  issues,
+  issues = [],
   invalidReason,
   heading = "This clip isn't being tracked",
-  next = "recheck",
   children,
 }: {
-  issues: SubmissionIssue[];
+  issues?: SubmissionIssue[];
   invalidReason?: string | null;
   heading?: string;
-  next?: IssueNextStep;
   children?: React.ReactNode;
 }) {
-  const list = entries(issues, invalidReason, next);
+  const list = entries(issues, invalidReason);
   if (list.length === 0) return null;
 
   return (
