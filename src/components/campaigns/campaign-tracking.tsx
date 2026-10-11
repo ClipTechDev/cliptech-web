@@ -43,7 +43,7 @@ export function CampaignTracking({
   const pending = clips.reduce((total, clip) => total + clip.pending_amount, 0);
 
   return (
-    <section className="space-y-block">
+    <section id="your-clips" className="space-y-block scroll-mt-20">
       <div className="gap-inline flex flex-wrap items-center justify-between">
         <h2 className="font-heading font-semibold">Your results</h2>
         <div className="gap-inline flex items-center">
@@ -92,7 +92,7 @@ export function CampaignTracking({
 
 function ClipRows({ clips }: { clips: Submission[] }) {
   return (
-    <ul className="divide-y rounded-xl border">
+    <ul className="divide-y overflow-hidden card-surface">
       {clips.map((clip) => (
         <li key={clip.id}>
           <Link

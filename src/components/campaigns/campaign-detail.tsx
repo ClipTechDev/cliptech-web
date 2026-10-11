@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Coins, ExternalLink, Eye, Timer, Wallet } from "lucide-react";
+import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
 
 import {
   formatCompactNumber,
@@ -8,25 +8,26 @@ import {
   formatRelative,
   platformLabel,
 } from "@/lib/format";
-import { mentionEntries, type Campaign } from "@/schemas/campaign";
+import { campaignFinished, mentionEntries, type Campaign } from "@/schemas/campaign";
 import type { CampaignResult } from "@/schemas/campaign-result";
 import type { Platform } from "@/schemas/common";
 import { buttonVariants } from "@/components/ui/button";
-import { StatCard } from "@/components/shared/stat-card";
+import { cardHeroValue } from "@/components/shared/card-surface";
 import { CampaignStatusBadge } from "@/components/campaigns/campaign-status-badge";
 import { CampaignHashtags } from "@/components/campaigns/campaign-hashtags";
 import { CampaignTracking } from "@/components/campaigns/campaign-tracking";
-import { CampaignJoin } from "@/components/campaigns/campaign-join";
+import {
+  CampaignJoin,
+  CampaignManage,
+  CampaignSubmit,
+} from "@/components/campaigns/campaign-join";
 
 /**
- * One campaign, in full.
+ * One campaign.
  *
- * A Server Component: it is handed the campaign the route already fetched and
- * renders it, so everything below except the results section, the copy button
- * and the submit form's live URL check is plain HTML in the first response.
- *
- * The order answers a creator's questions as they ask them - what it pays,
- * when it ends, what the rules are, then the form to act on all of it.
+ * A Server Component: it is handed the campaign the route already fetched.
+ * The page shows one thing to do at a time - join, or submit - and keeps
+ * everything about managing a membership behind the settings button.
  */
 export function CampaignDetail({
   campaign,
@@ -38,16 +39,36 @@ export function CampaignDetail({
   /** Null when this creator has not entered the campaign. */
   result: CampaignResult | null;
 }) {
+  const finished = campaignFinished(campaign);
+  const now = new Date();
+  const upcoming = new Date(campaign.starts_at) > now;
+  const over = new Date(campaign.ends_at) < now;
+  const left = Math.round(100 - Math.min(Math.max(campaign.budget_used_percent, 0), 100));
+  const mentions = mentionEntries(campaign);
+  const phrases = campaign.caption_phrases ?? [];
+  const hasRequirements =
+    campaign.hashtags.length > 0 || mentions.length > 0 || phrases.length > 0;
+
+  const limits = [
+    campaign.minimum_views !== null &&
+      `Pays after ${formatCompactNumber(campaign.minimum_views)} views`,
+    campaign.max_payout_per_post !== null &&
+      `Up to ${formatCurrency(campaign.max_payout_per_post)} per post`,
+  ].filter(Boolean);
+
   return (
-    <article className="space-y-section pb-card pt-6">
+    <article className="space-y-section pb-card pt-4">
       <div className="space-y-block">
-        <Link
-          href="/dashboard/campaigns"
-          className={buttonVariants({ variant: "ghost", size: "lg" })}
-        >
-          <ArrowLeft />
-          Campaigns
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link
+            href="/dashboard/campaigns"
+            className={buttonVariants({ variant: "ghost", size: "lg", className: "-ml-2.5" })}
+          >
+            <ArrowLeft />
+            Campaigns
+          </Link>
+          <CampaignManage campaign={campaign} />
+        </div>
 
         {campaign.banner_url && (
           // Plain img, not next/image: banner_url points at whatever host the
@@ -57,7 +78,7 @@ export function CampaignDetail({
           <img
             src={campaign.banner_url}
             alt=""
-            className="h-40 w-full rounded-xl object-cover sm:h-52"
+            className="h-40 w-full rounded-2xl object-cover sm:h-56"
           />
         )}
 
@@ -74,144 +95,87 @@ export function CampaignDetail({
             </p>
           )}
         </div>
-      </div>
 
-      <div className="space-y-block">
-        <div className="gap-inline grid grid-cols-2">
-          <StatCard
-            label="Pays"
-            value={formatCurrency(campaign.cpm)}
-            hint="per 1,000 views"
-            emphasis
-          />
-          <StatCard
-            label="Budget left"
-            value={formatCurrency(campaign.remaining_budget)}
-            hint={`of ${formatCurrency(campaign.total_budget)}`}
-          />
-          <StatCard
-            label="Minimum views"
-            value={
-              campaign.minimum_views === null
-                ? "None"
-                : formatCompactNumber(campaign.minimum_views)
-            }
-          />
-          <StatCard
-            label="Max per post"
-            value={
-              campaign.max_payout_per_post === null
-                ? "No cap"
-                : formatCurrency(campaign.max_payout_per_post)
-            }
-          />
+        <div className="p-card space-y-inline card-surface">
+          <p className="leading-none">
+            <span className={cardHeroValue}>{formatCurrency(campaign.cpm)}</span>
+            <span className="ml-1.5 text-sm text-muted-foreground">per 1k views</span>
+          </p>
+
+          {campaign.allowed_platforms.length > 0 && (
+            <p className="text-sm text-muted-foreground">
+              {campaign.allowed_platforms.map(platformLabel).join(" · ")}
+            </p>
+          )}
+
+          <dl className="grid grid-cols-2 gap-3 border-t pt-3 text-sm">
+            {upcoming ? (
+              <Fact label="Starts">{formatRelative(campaign.starts_at)}</Fact>
+            ) : over ? (
+              <Fact label="Ended">{formatDate(campaign.ends_at)}</Fact>
+            ) : (
+              <Fact label="Ends">{formatRelative(campaign.ends_at)}</Fact>
+            )}
+            <Fact label="Budget left">
+              <span className={left <= 20 && !finished ? "text-amber-500" : undefined}>{left}%</span>
+            </Fact>
+          </dl>
+
+          {limits.length > 0 && (
+            <p className="text-xs text-muted-foreground">{limits.join(" · ")}</p>
+          )}
         </div>
 
-        <dl className="space-y-tight p-card rounded-xl border text-sm">
-          <DetailRow icon={Timer} label="Ends">
-            {formatDate(campaign.ends_at)}{" "}
-            <span className="text-muted-foreground">
-              ({formatRelative(campaign.ends_at)})
-            </span>
-          </DetailRow>
-          <DetailRow icon={Coins} label="Started">
-            {formatDate(campaign.starts_at)}
-          </DetailRow>
-          <DetailRow icon={Eye} label="Platforms">
-            {campaign.allowed_platforms.length > 0
-              ? campaign.allowed_platforms.map(platformLabel).join(", ")
-              : "Any"}
-          </DetailRow>
-          <DetailRow icon={Wallet} label="Budget used">
-            {campaign.budget_used_percent.toFixed(0)}%
-          </DetailRow>
-        </dl>
+        <CampaignJoin campaign={campaign} />
       </div>
+
+      <CampaignSubmit campaign={campaign} connectedPlatforms={connectedPlatforms} />
 
       <CampaignTracking campaignId={campaign.id} initialResult={result} />
 
-      {campaign.hashtags.length > 0 && (
+      {!finished && hasRequirements && (
         <section className="space-y-inline">
-          <CampaignHashtags tags={campaign.hashtags} />
-          <ul className="gap-tight flex flex-wrap">
-            {campaign.hashtags.map((tag) => (
-              <li
-                key={tag}
-                className="px-tight rounded-md bg-muted py-1 font-mono text-xs text-muted-foreground"
-              >
-                #{tag}
-              </li>
-            ))}
-          </ul>
-          <p className="text-sm text-muted-foreground">
-            Include these in your caption for the post to count.
-          </p>
+          <h2 className="font-heading font-semibold">What your post needs</h2>
+          <div className="card-surface divide-y">
+            {campaign.hashtags.length > 0 && (
+              <div className="p-card">
+                <CampaignHashtags tags={campaign.hashtags} />
+              </div>
+            )}
+            {mentions.length > 0 && (
+              <Requirement title="Mention in your caption">
+                {mentions.map(([platform, handle]) => (
+                  <Chip key={platform}>
+                    <span className="font-mono">@{handle}</span> on {platformLabel(platform)}
+                  </Chip>
+                ))}
+              </Requirement>
+            )}
+            {phrases.length > 0 && (
+              <Requirement title="Text in your caption">
+                {phrases.map((phrase) => (
+                  <Chip key={phrase}>&ldquo;{phrase}&rdquo;</Chip>
+                ))}
+              </Requirement>
+            )}
+          </div>
         </section>
       )}
 
-      {mentionEntries(campaign).length > 0 && (
-        <section className="space-y-inline">
-          <h2 className="font-heading font-semibold">Required mention</h2>
-          <ul className="gap-tight flex flex-wrap">
-            {mentionEntries(campaign).map(([platform, handle]) => (
-              <li
-                key={platform}
-                className="px-tight rounded-md bg-muted py-1 text-xs text-muted-foreground"
-              >
-                {platformLabel(platform)}: <span className="font-mono">@{handle}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="text-sm text-muted-foreground">
-            Mention this account in your caption on that platform for the post to count.
-          </p>
-        </section>
-      )}
-
-      {(campaign.caption_phrases ?? []).length > 0 && (
-        <section className="space-y-inline">
-          <h2 className="font-heading font-semibold">Required caption text</h2>
-          <ul className="gap-tight flex flex-wrap">
-            {campaign.caption_phrases.map((phrase) => (
-              <li
-                key={phrase}
-                className="px-tight rounded-md bg-muted py-1 text-xs text-muted-foreground"
-              >
-                &ldquo;{phrase}&rdquo;
-              </li>
-            ))}
-          </ul>
-          <p className="text-sm text-muted-foreground">
-            Your caption must include this text. Capital letters don&apos;t matter.
-          </p>
-        </section>
-      )}
-
-      {campaign.rules && (
-        <section className="space-y-inline">
-          <h2 className="font-heading font-semibold">Rules</h2>
-          {/* whitespace-pre-line, not a markdown renderer: the admin writes
-              these as plain text in a textarea. */}
-          <p className="text-sm whitespace-pre-line text-muted-foreground">
-            {campaign.rules}
-          </p>
-        </section>
-      )}
-
-      {campaign.content_links.length > 0 && (
+      {!finished && campaign.content_links.length > 0 && (
         <section className="space-y-inline">
           <h2 className="font-heading font-semibold">Assets</h2>
-          <ul className="space-y-tight">
+          <ul className="card-surface divide-y">
             {campaign.content_links.map((link) => (
               <li key={link}>
                 <a
                   href={link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="gap-tight inline-flex items-center text-sm text-primary hover:underline"
+                  className="gap-inline px-card flex items-center justify-between py-3 text-sm hover:bg-muted/50"
                 >
-                  <ExternalLink className="size-3.5 shrink-0" />
-                  <span className="truncate">{link}</span>
+                  <span className="truncate">{link.replace(/^https?:\/\/(www\.)?/, "")}</span>
+                  <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
                 </a>
               </li>
             ))}
@@ -219,27 +183,46 @@ export function CampaignDetail({
         </section>
       )}
 
-      <CampaignJoin campaign={campaign} connectedPlatforms={connectedPlatforms} />
+      {campaign.rules && (
+        <details className="group card-surface">
+          <summary className="p-card flex cursor-pointer list-none items-center justify-between font-heading font-semibold [&::-webkit-details-marker]:hidden">
+            Rules
+            <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+          </summary>
+          {/* whitespace-pre-line, not a markdown renderer: the admin writes
+              these as plain text in a textarea. */}
+          <p className="px-card pb-card text-sm whitespace-pre-line text-muted-foreground">
+            {campaign.rules}
+          </p>
+        </details>
+      )}
+
     </article>
   );
 }
 
-function DetailRow({
-  icon: Icon,
-  label,
-  children,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  children: React.ReactNode;
-}) {
+function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="gap-inline flex items-center justify-between">
-      <dt className="gap-tight flex items-center text-muted-foreground">
-        <Icon className="size-4" />
-        {label}
-      </dt>
-      <dd className="text-right font-medium">{children}</dd>
+    <div className="min-w-0">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="truncate font-medium">{children}</dd>
     </div>
+  );
+}
+
+function Requirement({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="p-card space-y-tight">
+      <p className="text-sm font-medium">{title}</p>
+      <ul className="gap-tight flex flex-wrap">{children}</ul>
+    </div>
+  );
+}
+
+function Chip({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="px-tight rounded-md bg-muted py-1 text-xs text-muted-foreground">
+      {children}
+    </li>
   );
 }

@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/button";
  *
  * With a copy button, because that is the entire interaction: these get pasted
  * into another app, usually on the same phone, and retyping five tags by hand
- * is how a post ends up failing the campaign's rules. The one interactive
- * island on an otherwise server-rendered page.
+ * is how a post ends up failing the campaign's rules.
  */
 export function CampaignHashtags({ tags }: { tags: string[] }) {
   const [copied, setCopied] = React.useState(false);
@@ -32,12 +31,24 @@ export function CampaignHashtags({ tags }: { tags: string[] }) {
   }
 
   return (
-    <div className="gap-inline flex items-center justify-between">
-      <h2 className="font-heading font-semibold">Required hashtags</h2>
-      <Button variant="ghost" size="lg" onClick={copyAll}>
-        {copied ? <Check /> : <Copy />}
-        {copied ? "Copied" : "Copy all"}
-      </Button>
+    <div className="space-y-tight">
+      <div className="gap-inline flex items-center justify-between">
+        <p className="text-sm font-medium">Hashtags in your caption</p>
+        <Button variant="ghost" size="sm" onClick={copyAll}>
+          {copied ? <Check /> : <Copy />}
+          {copied ? "Copied" : "Copy"}
+        </Button>
+      </div>
+      <ul className="gap-tight flex flex-wrap">
+        {tags.map((tag) => (
+          <li
+            key={tag}
+            className="px-tight rounded-md bg-muted py-1 font-mono text-xs text-muted-foreground"
+          >
+            #{tag}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

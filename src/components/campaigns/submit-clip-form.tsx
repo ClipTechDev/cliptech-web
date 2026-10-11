@@ -8,7 +8,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { platformLabel } from "@/lib/format";
 import { dashboardKeys } from "@/hooks/use-dashboard";
 import { submissionsKeys } from "@/hooks/use-submissions";
-import { campaignClosedReason, mentionEntries, type Campaign } from "@/schemas/campaign";
+import { campaignClosedReason, type Campaign } from "@/schemas/campaign";
 import { platformFromPostUrl } from "@/schemas/submission";
 import type { Platform } from "@/schemas/common";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -120,16 +120,7 @@ export function SubmitClipForm({
           {campaign.allowed_platforms.length > 0
             ? campaign.allowed_platforms.map(platformLabel).join(", ")
             : "Instagram, X, TikTok or YouTube"}
-          . The post must be public and posted by your connected account
-          {campaign.hashtags.length > 0 &&
-            `, with ${campaign.hashtags.map((tag) => `#${tag}`).join(" ")} in the caption`}
-          {mentionEntries(campaign).length > 0 &&
-            `. Mention ${mentionEntries(campaign)
-              .map(([platform, handle]) => `@${handle} on ${platformLabel(platform)}`)
-              .join(", ")}`}
-          {(campaign.caption_phrases ?? []).length > 0 &&
-            `. Include ${campaign.caption_phrases.map((phrase) => `"${phrase}"`).join(", ")} in the caption`}
-          .
+          . The post must be public and posted from your joined page.
         </p>
       </div>
 
@@ -149,11 +140,12 @@ export function SubmitClipForm({
       {state.status === "error" && <FormMessage>{state.message}</FormMessage>}
 
       {failedChecks && (
-        <SubmissionIssues
-          issues={failedChecks.issues}
-          next="resubmit"
-          heading="Not submitted - fix this on the post, then submit it again"
-        />
+        <SubmissionIssues issues={failedChecks.issues} heading="Your clip wasn't accepted">
+          <p className="text-xs text-muted-foreground">
+            Nothing was saved. We&apos;ve also sent these details to your
+            notifications and email.
+          </p>
+        </SubmissionIssues>
       )}
 
       {duplicate && (
