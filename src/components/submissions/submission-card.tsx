@@ -2,18 +2,34 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ChevronRight, ExternalLink } from "lucide-react";
+import { AlertTriangle, ChevronRight } from "lucide-react";
 
 import {
   formatCompactNumber,
   formatCurrency,
   formatRelative,
+  humanise,
   platformLabel,
 } from "@/lib/format";
-import { submissionDisplayStatus, type Submission } from "@/schemas/submission";
+import {
+  issueCopy,
+  submissionDisplayStatus,
+  type Submission,
+} from "@/schemas/submission";
+import { cn } from "@/lib/utils";
+import { cardHeroValue, cardInteractive, cardSurface } from "@/components/shared/card-surface";
 import { RecheckButton } from "@/components/submissions/recheck-button";
-import { SubmissionIssues } from "@/components/submissions/submission-issues";
 import { SubmissionStatusBadge } from "@/components/submissions/submission-status-badge";
+
+function problemText(submission: Submission): string | null {
+  if (submission.rejection_reason) return submission.rejection_reason;
+  const issue = (submission.issues ?? [])[0];
+  if (issue) return issueCopy(issue).title;
+  if (submission.invalid_reason) {
+    return `Stopped earning: ${humanise(submission.invalid_reason).toLowerCase()}`;
+  }
+  return null;
+}
 
 export const SubmissionCard = React.memo(function SubmissionCard({
   submission,
@@ -21,89 +37,57 @@ export const SubmissionCard = React.memo(function SubmissionCard({
   submission: Submission;
 }) {
   const status = submissionDisplayStatus(submission);
+  const problem = problemText(submission);
 
   return (
-    <article className="space-y-inline p-card rounded-xl border bg-card">
-      <div className="gap-inline flex items-start justify-between">
-        <div className="min-w-0 space-y-0.5">
-          <Link
-            href={`/dashboard/submissions/${submission.id}`}
-            className="gap-tight flex items-center text-sm font-medium hover:underline"
-          >
-            <span className="truncate">
+    <article className={cn("relative space-y-3 p-4", cardSurface, cardInteractive)}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs text-muted-foreground">{platformLabel(submission.platform)}</p>
+          <h3 className="font-heading truncate font-semibold">
+            <Link
+              href={`/dashboard/submissions/${submission.id}`}
+              className="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none"
+            >
               {submission.campaign_name || "Unknown campaign"}
-            </span>
-            <ChevronRight className="size-3.5 shrink-0 text-muted-foreground" />
-          </Link>
-          <a
-            href={submission.post_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex max-w-full items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
-          >
-            <span className="shrink-0">{platformLabel(submission.platform)}</span>
-            <span aria-hidden>·</span>
-            <span className="truncate">{submission.post_url}</span>
-            <ExternalLink className="size-3 shrink-0" />
-          </a>
+            </Link>
+          </h3>
         </div>
         <SubmissionStatusBadge status={status} />
       </div>
 
-      <div className="gap-tight grid grid-cols-3 text-sm">
-        <Metric label="Payable views" value={formatCompactNumber(submission.payable_views)} />
-        <Metric label="Earned" value={formatCurrency(submission.earnings)} />
-        <Metric
-          label="Pending"
-          value={formatCurrency(submission.pending_amount)}
-          muted={submission.pending_amount === 0}
-        />
+      <div className="flex items-end justify-between gap-3">
+        <div className="leading-none">
+          <span className={cardHeroValue}>
+            {formatCurrency(submission.earnings)}
+          </span>
+          <span className="ml-1.5 text-xs text-muted-foreground">earned</span>
+        </div>
+        <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
       </div>
 
-      {submission.starting_views !== null && submission.starting_views > 0 && (
-        <p className="text-xs text-muted-foreground">
-          Had {formatCompactNumber(submission.starting_views)} views when you
-          submitted — only views after that count.
-        </p>
-      )}
-
-      {submission.rejection_reason && (
-        <p className="text-xs text-destructive">{submission.rejection_reason}</p>
-      )}
-
-      <SubmissionIssues
-        issues={submission.issues}
-        invalidReason={submission.invalid_reason}
-      >
-        {submission.can_recheck && (
-          <RecheckButton submissionId={submission.id} size="sm" />
-        )}
-      </SubmissionIssues>
-
       <p className="text-xs text-muted-foreground">
-        Posted {formatRelative(submission.submitted_at)}
-        {submission.last_tracked_at &&
-          ` · views checked ${formatRelative(submission.last_tracked_at)}`}
+        {formatCompactNumber(submission.payable_views)} views
+        {submission.pending_amount > 0 &&
+          ` · ${formatCurrency(submission.pending_amount)} pending`}
+        {` · Posted ${formatRelative(submission.submitted_at)}`}
       </p>
+
+      {problem && (
+        <div className="flex items-center justify-between gap-3 rounded-lg bg-destructive/10 px-3 py-2">
+          <p
+            className="flex min-w-0 items-center gap-2 text-xs text-destructive"
+          >
+            <AlertTriangle className="size-3.5 shrink-0" />
+            <span className="line-clamp-2">{problem}</span>
+          </p>
+          {submission.can_recheck && (
+            <span className="relative z-10 shrink-0">
+              <RecheckButton submissionId={submission.id} size="sm" />
+            </span>
+          )}
+        </div>
+      )}
     </article>
   );
 });
-
-function Metric({
-  label,
-  value,
-  muted = false,
-}: {
-  label: string;
-  value: string;
-  muted?: boolean;
-}) {
-  return (
-    <div>
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className={`font-medium tabular-nums ${muted ? "text-muted-foreground" : ""}`}>
-        {value}
-      </p>
-    </div>
-  );
-}
