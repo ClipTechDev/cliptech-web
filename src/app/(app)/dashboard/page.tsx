@@ -36,16 +36,17 @@ export default async function DashboardPage({
   return (
     <>
       <PageHeader
-        title={`Welcome back, ${user.user.name.split(" ")[0] || "creator"}`}
+        title={
+          <>
+            Welcome back,{" "}
+            <span className="text-primary">{user.user.name.split(" ")[0] || "creator"}</span>
+          </>
+        }
         description="Find your next campaign and keep track of your progress."
       />
 
       <div className="space-y-section">
         <section className="space-y-block">
-          <div>
-            <h2 className="font-heading text-lg font-semibold">Your progress</h2>
-            <p className="text-sm text-muted-foreground">A quick look at your ClipTech activity.</p>
-          </div>
           <div className="grid grid-cols-2 gap-3">
             <StatCard label="Active campaigns" value={dashboard.dashboard.active_campaigns} emphasis />
             <StatCard label="Clips submitted" value={dashboard.dashboard.submissions.total} />
