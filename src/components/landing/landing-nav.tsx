@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { name: "How it works", link: "#how-it-works" },
   { name: "Campaigns", link: "#campaigns" },
   { name: "FAQ", link: "#faq" },
+  { name: "For Business", link: "/for-business" },
 ];
 
 export function LandingNav({
