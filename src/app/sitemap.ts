@@ -6,6 +6,7 @@ import { LEGAL_DOCUMENTS } from "@/lib/legal";
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: env.siteUrl, changeFrequency: "weekly", priority: 1 },
+    { url: `${env.siteUrl}/for-business`, changeFrequency: "monthly", priority: 0.9 },
     ...LEGAL_DOCUMENTS.map((document) => ({
       url: `${env.siteUrl}${document.href}`,
       changeFrequency: "yearly" as const,
