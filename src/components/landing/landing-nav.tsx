@@ -13,6 +13,7 @@ import {
   NavbarButton,
   NavbarLogo,
 } from "@/components/ui/resizable-navbar";
+import { ThemeSwitch } from "@/components/shared/theme-switch";
 
 const NAV_ITEMS = [
   { name: "How it works", link: "#how-it-works" },
@@ -28,15 +29,21 @@ export function LandingNav({ ctaHref, ctaLabel }: { ctaHref: string; ctaLabel: s
       <NavBody>
         <NavbarLogo />
         <NavItems items={NAV_ITEMS} />
-        <NavbarButton href={ctaHref} variant="gradient">
-          {ctaLabel}
-        </NavbarButton>
+        <div className="relative z-20 flex items-center gap-tight">
+          <ThemeSwitch />
+          <NavbarButton href={ctaHref} variant="gradient">
+            {ctaLabel}
+          </NavbarButton>
+        </div>
       </NavBody>
 
       <MobileNav>
         <MobileNavHeader>
           <NavbarLogo />
-          <MobileNavToggle isOpen={open} onClick={() => setOpen((value) => !value)} />
+          <div className="flex items-center">
+            <ThemeSwitch className="size-11" />
+            <MobileNavToggle isOpen={open} onClick={() => setOpen((value) => !value)} />
+          </div>
         </MobileNavHeader>
 
         <MobileNavMenu isOpen={open} onClose={() => setOpen(false)}>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { LEGAL, LEGAL_DOCUMENTS } from "@/lib/legal";
+import { ThemeSwitch } from "@/components/shared/theme-switch";
 
 /**
  * Public, and deliberately outside the (app) route group.
@@ -16,10 +17,11 @@ import { LEGAL, LEGAL_DOCUMENTS } from "@/lib/legal";
 export default function LegalLayout({ children }: LayoutProps<"/legal">) {
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 px-card sm:px-6">
-      <header className="py-block border-b">
+      <header className="py-block flex items-center justify-between border-b">
         <Link href="/" className="font-heading text-lg font-semibold tracking-tight">
           {LEGAL.product}
         </Link>
+        <ThemeSwitch />
       </header>
 
       <main className="py-section">{children}</main>
