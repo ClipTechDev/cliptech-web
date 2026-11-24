@@ -11,8 +11,8 @@ import {
   type BusinessLeadValues,
 } from "@/schemas/business-lead";
 import { PROMOTION_TYPES } from "@/components/business/content";
-import { Reveal } from "@/components/business/reveal";
-import { Section, SectionIntro } from "@/components/business/section";
+import { Reveal } from "@/components/marketing/reveal";
+import { Section, SectionIntro } from "@/components/marketing/section";
 import { Button } from "@/components/ui/button";
 import {
   Form,

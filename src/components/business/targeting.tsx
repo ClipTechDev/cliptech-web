@@ -1,7 +1,7 @@
 import { Globe2, Heart, Languages, MapPin } from "lucide-react";
 
-import { Eyebrow } from "@/components/business/section";
-import { Reveal, RevealGroup, RevealItem } from "@/components/business/reveal";
+import { Eyebrow } from "@/components/marketing/section";
+import { Reveal, RevealGroup, RevealItem } from "@/components/marketing/reveal";
 
 const DIMENSIONS = [
   {

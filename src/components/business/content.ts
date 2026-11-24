@@ -5,46 +5,6 @@ export const BUSINESS_STATS = [
   { value: "10+", label: "Major brands and platforms" },
 ] as const;
 
-export const BRAND_LOGOS = [
-  {
-    name: "Netflix",
-    src: "/brands/Netflix_2014.svg",
-    ratio: 1000 / 268.7,
-    height: 24,
-  },
-  {
-    name: "Prime Video",
-    src: "/brands/Amazon_Prime_Video_2024.svg",
-    ratio: 1040 / 309.36,
-    height: 32,
-  },
-  {
-    name: "Hulu",
-    src: "/brands/Hulu_2019.svg",
-    ratio: 1000 / 329.813,
-    height: 24,
-  },
-  {
-    name: "Apple TV",
-    src: "/brands/Apple_TV_logo.svg",
-    ratio: 53.231 / 26.889,
-    height: 30,
-    invertOnDark: true,
-  },
-  {
-    name: "Feastables by MrBeast",
-    src: "/brands/feastables.webp",
-    ratio: 900 / 297,
-    height: 40,
-  },
-] as const;
-
-export const HERO_REELS = [
-  { src: "/business/reel-1.jpg", views: 18_412_305 },
-  { src: "/business/reel-2.jpg", views: 12_406_118 },
-  { src: "/business/reel-3.jpg", views: 8_731_442 },
-] as const;
-
 export const PROMOTION_TYPES = [
   "OTT or movie release",
   "Sports event or league",

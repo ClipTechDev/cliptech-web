@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Reveal } from "@/components/business/reveal";
+import { Reveal } from "@/components/marketing/reveal";
 
 export function Section({
   id,

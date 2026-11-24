@@ -17,11 +17,17 @@ import { ThemeSwitch } from "@/components/shared/theme-switch";
 
 const NAV_ITEMS = [
   { name: "How it works", link: "#how-it-works" },
-  { name: "Features", link: "#features" },
+  { name: "Campaigns", link: "#campaigns" },
   { name: "FAQ", link: "#faq" },
 ];
 
-export function LandingNav({ ctaHref, ctaLabel }: { ctaHref: string; ctaLabel: string }) {
+export function LandingNav({
+  ctaHref,
+  ctaLabel,
+}: {
+  ctaHref: string;
+  ctaLabel: string;
+}) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -42,7 +48,10 @@ export function LandingNav({ ctaHref, ctaLabel }: { ctaHref: string; ctaLabel: s
           <NavbarLogo />
           <div className="flex items-center">
             <ThemeSwitch className="size-11" />
-            <MobileNavToggle isOpen={open} onClick={() => setOpen((value) => !value)} />
+            <MobileNavToggle
+              isOpen={open}
+              onClick={() => setOpen((value) => !value)}
+            />
           </div>
         </MobileNavHeader>
 
@@ -57,7 +66,11 @@ export function LandingNav({ ctaHref, ctaLabel }: { ctaHref: string; ctaLabel: s
               {item.name}
             </a>
           ))}
-          <NavbarButton href={ctaHref} variant="gradient" className="w-full py-3">
+          <NavbarButton
+            href={ctaHref}
+            variant="gradient"
+            className="w-full py-3"
+          >
             {ctaLabel}
           </NavbarButton>
         </MobileNavMenu>

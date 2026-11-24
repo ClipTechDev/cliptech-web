@@ -5,7 +5,12 @@ import { useReducedMotion } from "motion/react";
 import { Play } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { HERO_REELS } from "@/components/business/content";
+
+const HERO_REELS = [
+  { src: "/reels/reel-1.jpg", views: 18_412_305 },
+  { src: "/reels/reel-2.jpg", views: 12_406_118 },
+  { src: "/reels/reel-3.jpg", views: 8_731_442 },
+] as const;
 
 const SLOTS = [
   "z-0 w-[34%] translate-x-6 -rotate-6 opacity-80",
@@ -70,10 +75,7 @@ function Phone({
         <Play className="size-3.5 shrink-0 fill-white" />
         {format.format(count)}
         <span
-          className={cn(
-            "font-normal text-white/70",
-            !featured && "hidden sm:inline",
-          )}
+          className={cn("font-normal text-white/70", !featured && "hidden")}
         >
           views
         </span>

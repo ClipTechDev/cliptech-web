@@ -17,8 +17,8 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Reveal } from "@/components/business/reveal";
-import { Section, SectionIntro } from "@/components/business/section";
+import { Reveal } from "@/components/marketing/reveal";
+import { Section, SectionIntro } from "@/components/marketing/section";
 
 type Tone = "primary" | "warning" | "success";
 

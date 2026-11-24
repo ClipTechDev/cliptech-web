@@ -2,7 +2,13 @@ import Link from "next/link";
 
 import { LEGAL, LEGAL_DOCUMENTS } from "@/lib/legal";
 
-export function BusinessFooter() {
+export function SiteFooter({
+  tagline,
+  crossLink,
+}: {
+  tagline: string;
+  crossLink: { href: string; label: string };
+}) {
   return (
     <footer className="border-t px-card py-12 sm:px-6">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
@@ -14,16 +20,16 @@ export function BusinessFooter() {
             Clip<span className="text-primary">Tech</span>
           </Link>
           <p className="mt-2 max-w-xs text-sm text-muted-foreground">
-            Short-form content distribution for brands and agencies.
+            {tagline}
           </p>
         </div>
 
         <nav className="flex flex-wrap gap-x-6 gap-y-0 sm:gap-y-tight text-sm">
           <Link
-            href="/"
+            href={crossLink.href}
             className="inline-flex min-h-10 items-center text-muted-foreground transition-colors hover:text-foreground sm:min-h-0"
           >
-            For creators
+            {crossLink.label}
           </Link>
           {LEGAL_DOCUMENTS.map((document) => (
             <Link

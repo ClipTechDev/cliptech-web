@@ -1,10 +1,10 @@
 import { ArrowRight, BadgeCheck, Crosshair, Play } from "lucide-react";
 
-import { HeroReels } from "@/components/business/hero-reels";
+import { HeroReels } from "@/components/marketing/hero-reels";
 
 import { Button } from "@/components/ui/button";
-import { Eyebrow } from "@/components/business/section";
-import { Reveal, RevealGroup, RevealItem } from "@/components/business/reveal";
+import { Eyebrow } from "@/components/marketing/section";
+import { Reveal, RevealGroup, RevealItem } from "@/components/marketing/reveal";
 
 const POINTS = [
   { icon: BadgeCheck, label: "Pay only for delivered views" },

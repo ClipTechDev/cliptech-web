@@ -4,10 +4,15 @@ import { Accordion } from "@base-ui/react/accordion";
 import { Plus } from "lucide-react";
 
 import { LEGAL } from "@/lib/legal";
-import { BUSINESS_FAQ } from "@/components/business/content";
-import { Section, SectionIntro } from "@/components/business/section";
+import { Section, SectionIntro } from "@/components/marketing/section";
 
-export function BusinessFaq() {
+export function FaqSection({
+  items,
+  description,
+}: {
+  items: readonly { question: string; answer: string }[];
+  description: string;
+}) {
   return (
     <Section id="faq" className="border-t">
       <div className="grid gap-12 lg:grid-cols-[1fr_1.5fr] lg:gap-20">
@@ -15,7 +20,7 @@ export function BusinessFaq() {
           <SectionIntro
             eyebrow="FAQ"
             title="Frequently asked questions."
-            description="Everything you need to know about running campaigns with ClipTech."
+            description={description}
           />
           <p className="mt-6 text-sm text-muted-foreground">
             Something else? Email{" "}
@@ -29,7 +34,7 @@ export function BusinessFaq() {
         </div>
 
         <Accordion.Root keepMounted className="border-t">
-          {BUSINESS_FAQ.map(({ question, answer }) => (
+          {items.map(({ question, answer }) => (
             <Accordion.Item key={question} className="border-b">
               <Accordion.Header>
                 <Accordion.Trigger className="group flex min-h-16 w-full items-center justify-between gap-card py-5 text-left font-heading text-base font-semibold outline-none focus-visible:text-primary sm:text-lg">

@@ -6,8 +6,8 @@ import {
   Trophy,
 } from "lucide-react";
 
-import { RevealGroup, RevealItem } from "@/components/business/reveal";
-import { Section, SectionIntro } from "@/components/business/section";
+import { RevealGroup, RevealItem } from "@/components/marketing/reveal";
+import { Section, SectionIntro } from "@/components/marketing/section";
 
 const CATEGORIES = [
   {

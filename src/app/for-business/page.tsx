@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 
 import { env } from "@/lib/env";
 import { OPEN_GRAPH, SITE } from "@/lib/site";
-import { BusinessFaq } from "@/components/business/business-faq";
-import { BusinessFooter } from "@/components/business/business-footer";
 import { BusinessHero } from "@/components/business/business-hero";
 import { BusinessNav } from "@/components/business/business-nav";
 import { Categories } from "@/components/business/categories";
-import { BUSINESS_FAQ } from "@/components/business/content";
-import { CtaBand } from "@/components/business/cta-band";
+import { BUSINESS_FAQ, BUSINESS_STATS } from "@/components/business/content";
+import { CtaBand } from "@/components/marketing/cta-band";
+import { FaqSection } from "@/components/marketing/faq-section";
+import { SiteFooter } from "@/components/marketing/site-footer";
 import { Integrity } from "@/components/business/integrity";
 import { Process } from "@/components/business/process";
-import { Proof } from "@/components/business/proof";
+import { Proof } from "@/components/marketing/proof";
 import { StickyCta } from "@/components/business/sticky-cta";
 import { ProposalForm } from "@/components/business/proposal-form";
 import { Targeting } from "@/components/business/targeting";
@@ -83,17 +83,29 @@ export default function ForBusinessPage() {
       <BusinessNav />
       <main className="overflow-x-clip">
         <BusinessHero />
-        <Proof />
+        <Proof stats={BUSINESS_STATS} />
         <Targeting />
         <Categories />
         <Process />
         <Integrity />
         <WhyUs />
-        <CtaBand />
-        <BusinessFaq />
+        <CtaBand
+          eyebrow="Let's work together"
+          title="Ready to launch your next campaign?"
+          description="Share a few details and we'll get back to you with a custom proposal within one business day."
+          href="#proposal"
+          label="Get a campaign proposal"
+        />
+        <FaqSection
+          items={BUSINESS_FAQ}
+          description="Everything you need to know about running campaigns with ClipTech."
+        />
         <ProposalForm />
       </main>
-      <BusinessFooter />
+      <SiteFooter
+        tagline="Short-form content distribution for brands and agencies."
+        crossLink={{ href: "/", label: "For creators" }}
+      />
       <StickyCta />
     </>
   );

@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 
-import { Calculator } from "@/components/landing/calculator";
-import { CampaignsCta } from "@/components/landing/campaigns-cta";
-import { Faq } from "@/components/landing/faq";
-import { Features } from "@/components/landing/features";
-import { Hero } from "@/components/landing/hero";
-import { HowItWorks } from "@/components/landing/how-it-works";
-import { LandingFooter } from "@/components/landing/landing-footer";
+import { CampaignBrowser } from "@/components/landing/campaign-browser";
+import { CreatorHero } from "@/components/landing/creator-hero";
+import { FAQ_QUESTIONS } from "@/components/landing/faq-data";
 import { LandingNav } from "@/components/landing/landing-nav";
+import { Reasons } from "@/components/landing/reasons";
+import { Steps } from "@/components/landing/steps";
 import { Updates } from "@/components/landing/updates";
+import { Value } from "@/components/landing/value";
+import { CtaBand } from "@/components/marketing/cta-band";
+import { FaqSection } from "@/components/marketing/faq-section";
+import { Proof } from "@/components/marketing/proof";
+import { SiteFooter } from "@/components/marketing/site-footer";
 import { serverFetch } from "@/lib/api-server";
 import { OPEN_GRAPH, landingJsonLd } from "@/lib/site";
 
@@ -17,12 +20,13 @@ export const metadata: Metadata = {
   openGraph: { ...OPEN_GRAPH, url: "/" },
 };
 
-/**
- * The CTA's destination depends on whether the visitor already has a session:
- * checked here, server-side, so the click goes straight to the right place
- * instead of landing on /dashboard and bouncing to /login once its own
- * session check fails.
- */
+const STATS = [
+  { value: "100M+", label: "Combined followers across the network" },
+  { value: "500+", label: "Active pages and creators" },
+  { value: "250M+", label: "Campaign views delivered" },
+  { value: "10+", label: "Major brands and platforms" },
+] as const;
+
 export default async function LandingPage() {
   const signedIn = await serverFetch("/users/me")
     .then(() => true)
@@ -30,7 +34,7 @@ export default async function LandingPage() {
 
   const cta = signedIn
     ? { ctaHref: "/dashboard", ctaLabel: "Go to dashboard" }
-    : { ctaHref: "/login", ctaLabel: "Get Started" };
+    : { ctaHref: "/login", ctaLabel: "Start earning" };
 
   return (
     <>
@@ -42,17 +46,33 @@ export default async function LandingPage() {
       />
       <LandingNav {...cta} />
       <main className="overflow-x-clip">
-        <Hero {...cta} />
-        <HowItWorks />
-        <Features />
-        <Calculator />
-        <CampaignsCta
-          href={signedIn ? "/dashboard/campaigns" : "/login?next=%2Fdashboard%2Fcampaigns"}
-        />
+        <CreatorHero {...cta} />
+        <Proof stats={STATS} label="Campaigns from brands and platforms like" />
+        <Value />
+        <Steps />
+        <CampaignBrowser />
+        <Reasons />
         <Updates />
-        <Faq />
+        <CtaBand
+          eyebrow="Start today"
+          title="Your next post could be paid."
+          description="Free to join. Connect your accounts and pick your first campaign in minutes."
+          href={
+            signedIn
+              ? "/dashboard/campaigns"
+              : "/login?next=%2Fdashboard%2Fcampaigns"
+          }
+          label={signedIn ? "Browse campaigns" : "Start earning"}
+        />
+        <FaqSection
+          items={FAQ_QUESTIONS}
+          description="Everything you need to know about joining ClipTech."
+        />
       </main>
-      <LandingFooter {...cta} />
+      <SiteFooter
+        tagline="Get paid for the views your page already gets."
+        crossLink={{ href: "/for-business", label: "For brands" }}
+      />
     </>
   );
 }
