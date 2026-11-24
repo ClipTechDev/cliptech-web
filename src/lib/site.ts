@@ -6,7 +6,7 @@ export const SITE = {
   name: LEGAL.product,
   title: `${LEGAL.product}: Get paid per view for the clips you post`,
   description:
-    "ClipTech is a clipping platform for creators. Join campaigns, post clips on Instagram, TikTok, YouTube or X, and get paid for the views they gain.",
+    "ClipTech is a clipping platform for creators. Join campaigns, post clips on Instagram or YouTube, and get paid for the views they gain.",
 } as const;
 
 export const OPEN_GRAPH = {

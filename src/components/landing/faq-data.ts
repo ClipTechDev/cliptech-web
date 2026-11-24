@@ -4,7 +4,7 @@ export const FAQ_QUESTIONS = [
   {
     question: "Who can join ClipTech?",
     answer:
-      "Anyone who posts on Instagram, TikTok, YouTube or X. Sign in with your email and the code we send you, then connect the accounts you post from. Some campaigns set their own requirements, which are shown before you join.",
+      "Anyone who posts on Instagram or YouTube. Sign in with your email and the code we send you, then connect the accounts you post from. Some campaigns set their own requirements, which are shown before you join.",
   },
   {
     question: "Is there any cost to join?",
@@ -18,7 +18,7 @@ export const FAQ_QUESTIONS = [
   {
     question: "Which platforms are supported?",
     answer:
-      "Instagram, TikTok, YouTube and X. Each campaign lists which of them it accepts, so check before you post.",
+      "Instagram and YouTube. Each campaign lists which of them it accepts, so check before you post.",
   },
   {
     question: "Do I have to accept every campaign?",

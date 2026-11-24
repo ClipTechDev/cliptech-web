@@ -1,8 +1,8 @@
 import Link from "next/link";
 import {
   IconBrandInstagram,
-  IconBrandTiktok,
-  IconBrandX,
+  // IconBrandTiktok,
+  // IconBrandX,
   IconBrandYoutube,
 } from "@tabler/icons-react";
 import { ArrowRight, BadgeCheck, CircleDollarSign, Wallet } from "lucide-react";
@@ -21,8 +21,8 @@ const POINTS = [
 const PLATFORMS = [
   { icon: IconBrandInstagram, label: "Instagram" },
   { icon: IconBrandYoutube, label: "YouTube" },
-  { icon: IconBrandTiktok, label: "TikTok" },
-  { icon: IconBrandX, label: "X" },
+  // { icon: IconBrandTiktok, label: "TikTok" },
+  // { icon: IconBrandX, label: "X" },
 ];
 
 export function CreatorHero({

@@ -33,7 +33,7 @@ export const BUSINESS_FAQ = [
   {
     question: "Which platforms are supported?",
     answer:
-      "Instagram Reels, YouTube Shorts, TikTok and X. Most campaigns run primarily on Instagram and YouTube, and we'll recommend a mix based on your audience.",
+      "Instagram Reels and YouTube Shorts. We'll recommend a mix based on your audience.",
   },
   {
     question: "How do you report campaign performance?",

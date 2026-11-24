@@ -33,7 +33,7 @@ export default function Image() {
           </div>
         </div>
         <div style={{ display: "flex", fontSize: 32, color: "#a3a3a3" }}>
-          Instagram · TikTok · YouTube · X
+          Instagram · YouTube
         </div>
       </div>
     ),
